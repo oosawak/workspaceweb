@@ -171,10 +171,21 @@ export class PagesDemoBackend implements MindZjBackend {
         const language = (() => {
           try {
             const settings = JSON.parse(localStorage.getItem(settingsKey) || "{}");
-            return settings.locale || localStorage.getItem("mindzj-pending-locale") || "ja";
+            // A locale chosen on the welcome screen is an explicit, one-shot
+            // override. It must win over a previously saved locale until the
+            // vault-open flow has persisted and consumed it.
+            return localStorage.getItem("mindzj-pending-locale") || settings.locale || "ja";
           } catch { return localStorage.getItem("mindzj-pending-locale") || "ja"; }
         })();
-        const intro = introPaths[language] || introPaths.en;
+        const normalizedLanguage = (() => {
+          const value = String(language).trim().toLowerCase();
+          if (value === "zh" || value.startsWith("zh-")) return "zh-CN";
+          for (const locale of ["en", "ja", "fr", "de", "es"] as const) {
+            if (value === locale || value.startsWith(`${locale}-`)) return locale;
+          }
+          return "ja";
+        })();
+        const intro = introPaths[normalizedLanguage] || introPaths.ja;
         const saved = JSON.parse(localStorage.getItem(workspaceKey) || "null");
         const previousDefault = "ドキュメント/教科書/UnrealEngine入門.md";
         const introSet = new Set(Object.values(introPaths));
