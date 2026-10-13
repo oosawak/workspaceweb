@@ -37,6 +37,9 @@ export const FilePreview: Component<{
     const [spreadsheetSheetIndex, setSpreadsheetSheetIndex] = createSignal(0);
     const [spreadsheetLoading, setSpreadsheetLoading] = createSignal(false);
     const [spreadsheetError, setSpreadsheetError] = createSignal("");
+    const [cadCraftPreviewFrame, setCadCraftPreviewFrame] = createSignal<HTMLIFrameElement | null>(null);
+    const [cadCraftPreviewLoading, setCadCraftPreviewLoading] = createSignal(false);
+    const [cadCraftPreviewError, setCadCraftPreviewError] = createSignal("");
     const previewableMedia = createMemo(() => ["HTML", "HTM", "URL", "PDF", "PSD", "DXF", "DWG", "XLS", "XLSX", "XLSM", "XLSB", "ODS", "MP3", "M4A", "WAV", "OGG", "FLAC", "AAC", "OPUS", "MP4", "M4V", "MOV", "AVI", "MKV", "WEBM", "OGV", "GLB", "GLTF"].includes(extension()));
     const supportsSourceEdit = createMemo(() => ["HTML", "HTM", "URL"].includes(extension()));
     const isAudio = createMemo(() => ["MP3", "M4A", "WAV", "OGG", "FLAC", "AAC", "OPUS"].includes(extension()));
@@ -44,6 +47,14 @@ export const FilePreview: Component<{
     const isModel = createMemo(() => ["GLB", "GLTF"].includes(extension()));
     const isSpreadsheet = createMemo(() => ["XLS", "XLSX", "XLSM", "XLSB", "ODS"].includes(extension()));
     const isCadDrawing = createMemo(() => ["DXF", "DWG"].includes(extension()));
+    const cadCraftPreviewUrl = createMemo(() => {
+        const appBase = new URL(import.meta.env.BASE_URL, window.location.origin);
+        const url = new URL("cadcraft/index.html", appBase);
+        url.searchParams.set("host", "parent");
+        url.searchParams.set("mindzj_preview_path", props.filePath);
+        url.searchParams.set("mindzj_preview_active", props.active ? "1" : "0");
+        return url.toString();
+    });
     const assetUrl = createMemo(() => {
         const root = vaultStore.vaultInfo()?.path ?? "";
         if (!root) return "";
@@ -147,6 +158,51 @@ export const FilePreview: Component<{
             })
             .finally(() => { if (!cancelled) setSpreadsheetLoading(false); });
         onCleanup(() => { cancelled = true; });
+    });
+
+    createEffect(() => {
+        const frame = cadCraftPreviewFrame();
+        const root = vaultStore.vaultInfo()?.path;
+        const relativePath = props.filePath;
+        if (!frame || !isCadDrawing() || !props.active || !root) return;
+        let cancelled = false;
+        const origin = new URL(cadCraftPreviewUrl()).origin;
+        setCadCraftPreviewLoading(true);
+        setCadCraftPreviewError("");
+        const handleCadCraftMessage = async (event: MessageEvent) => {
+            if (event.origin !== origin || event.source !== frame.contentWindow) return;
+            const data = event.data as { type?: string; error?: string };
+            if (data?.type === "cadcraft:ready") {
+                try {
+                    const response = await fetch(toVaultAssetUrl(root, relativePath));
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const bytes = await response.arrayBuffer();
+                    if (cancelled) return;
+                    frame.contentWindow?.postMessage(
+                        { type: "cadcraft:open", name: fileName(), bytes },
+                        origin,
+                        [bytes],
+                    );
+                    setCadCraftPreviewLoading(false);
+                } catch (error) {
+                    console.error("Could not load the CAD drawing preview:", error);
+                    if (!cancelled) {
+                        setCadCraftPreviewLoading(false);
+                        setCadCraftPreviewError(t("cadcraft.previewError"));
+                    }
+                }
+            } else if (data?.type === "cadcraft:failed") {
+                if (!cancelled) {
+                    setCadCraftPreviewLoading(false);
+                    setCadCraftPreviewError(data.error || t("cadcraft.previewError"));
+                }
+            }
+        };
+        window.addEventListener("message", handleCadCraftMessage);
+        onCleanup(() => {
+            cancelled = true;
+            window.removeEventListener("message", handleCadCraftMessage);
+        });
     });
 
     async function beginSourceEdit() {
@@ -453,10 +509,26 @@ export const FilePreview: Component<{
                             />
                         </Show>
                         <Show when={isCadDrawing()}>
-                            <div style={mediaStageStyle}>
-                                <div style={{ color: "var(--mz-text-primary)", "font-size": "var(--mz-font-size-lg)", "font-weight": "600", "text-align": "center", "overflow-wrap": "anywhere" }}>{fileName()}</div>
-                                <div style={{ color: "var(--mz-text-secondary)", "text-align": "center", "max-width": "560px" }}>{t("cadcraft.previewHint")}</div>
-                                <button onClick={() => openCadDrawingInCadCraft(props.filePath)} style={actionButtonStyle(true)}>{t("cadcraft.editButton")}</button>
+                            <div style={{ flex: "1", display: "flex", "flex-direction": "column", "min-width": "0", "min-height": "0", background: "var(--mz-bg-primary)" }}>
+                                <div style={{ display: "flex", "align-items": "center", gap: "8px", padding: "8px 12px", "border-bottom": "1px solid var(--mz-border)", background: "var(--mz-bg-secondary)" }}>
+                                    <strong style={{ flex: "1", overflow: "hidden", "text-overflow": "ellipsis", "white-space": "nowrap", color: "var(--mz-text-primary)" }}>{fileName()}</strong>
+                                    <button onClick={() => openCadDrawingInCadCraft(props.filePath)} style={actionButtonStyle(true)}>{t("cadcraft.editButton")}</button>
+                                </div>
+                                <div style={{ flex: "1", position: "relative", "min-height": "0", background: "var(--mz-bg-primary)" }}>
+                                    <iframe
+                                        ref={setCadCraftPreviewFrame}
+                                        src={cadCraftPreviewUrl()}
+                                        title={`${fileName()} — CAD preview`}
+                                        aria-label={t("cadcraft.previewHint")}
+                                        tabIndex={-1}
+                                        style={{ width: "100%", height: "100%", border: "0", background: "var(--mz-bg-primary)", "pointer-events": "none" }}
+                                    />
+                                    <Show when={cadCraftPreviewLoading() || cadCraftPreviewError()}>
+                                        <div style={{ position: "absolute", inset: "0", display: "grid", "place-items": "center", padding: "24px", color: cadCraftPreviewError() ? "var(--mz-danger, #ef6b73)" : "var(--mz-text-muted)", background: "var(--mz-bg-primary)", "text-align": "center" }}>
+                                            {cadCraftPreviewError() || t("common.loading")}
+                                        </div>
+                                    </Show>
+                                </div>
                             </div>
                         </Show>
                         <Show when={isAudio()}>
