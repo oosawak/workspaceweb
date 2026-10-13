@@ -21,7 +21,7 @@ and GitHub clone/update steps, see [WEB_SERVER_DEPLOYMENT_JA.md](mindzjweb/WEB_S
 ## GitHub Pages demo
 
 GitHub Pages builds the actual MindZJ web interface in browser demo mode and
-serves it at <https://oosawak.github.io/mindzjweb/web/>. The Rust server is not
+serves it at <https://oosawak.github.io/workspaceweb/web/>. The Rust server is not
 needed for this demo. Sample Vault files are copied to `docs/web/Vaults/`;
 visitors can create and edit notes, which are saved in that browser's local
 storage and do not change the published Vault. Before publishing Vault updates,

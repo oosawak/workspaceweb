@@ -10,7 +10,7 @@ const isPagesDemo = process.env.VITE_PAGES_DEMO === "true";
 
 export default defineConfig(async () => ({
   plugins: [basicSsl(), UnoCSS(), solidPlugin()],
-  base: isPagesDemo ? "/mindzjweb/web/" : "/",
+  base: isPagesDemo ? "/workspaceweb/web/" : "/",
 
   cacheDir: ".vite-cache",
 

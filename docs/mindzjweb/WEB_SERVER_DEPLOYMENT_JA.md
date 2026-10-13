@@ -45,8 +45,8 @@ cargo --version
 
 ```bash
 cd ~
-git clone https://github.com/oosawak/mindzjweb.git mindzjweb
-cd ~/mindzjweb
+git clone https://github.com/oosawak/workspaceweb.git workspaceweb
+cd ~/workspaceweb
 npm ci
 npm run build
 cargo build --release -p mindzj --bin mindzj-server
@@ -68,10 +68,10 @@ After=network.target
 [Service]
 Type=simple
 User=<Ubuntuのユーザー名>
-WorkingDirectory=/home/<Ubuntuのユーザー名>/mindzjweb
+WorkingDirectory=/home/<Ubuntuのユーザー名>/workspaceweb
 Environment=MINDZJ_BIND=127.0.0.1
 Environment=MINDZJ_PORT=3000
-ExecStart=/home/<Ubuntuのユーザー名>/mindzjweb/target/release/mindzj-server
+ExecStart=/home/<Ubuntuのユーザー名>/workspaceweb/target/release/mindzj-server
 Restart=on-failure
 RestartSec=3
 NoNewPrivileges=true
@@ -82,7 +82,7 @@ WantedBy=multi-user.target
 EOF
 ```
 
-この例は clone 先を `/home/<Ubuntuのユーザー名>/mindzjweb` としています。別の
+この例は clone 先を `/home/<Ubuntuのユーザー名>/workspaceweb` としています。別の
 場所に clone した場合は `WorkingDirectory` と `ExecStart` を合わせてください。
 
 ```bash
@@ -238,7 +238,7 @@ Vault は clone 先の `Vaults/` に保存され、ブラウザーやサーバ�
 ## GitHub の更新を反映
 
 ```bash
-cd ~/mindzjweb
+cd ~/workspaceweb
 git pull --ff-only
 npm ci
 npm run build

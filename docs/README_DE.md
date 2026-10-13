@@ -34,8 +34,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/oosawak/mindzjweb">WorkspaceWeb-GitHub-Repository</a> ·
-  <a href="https://oosawak.github.io/mindzjweb/web/">Web-Demo</a> ·
+  <a href="https://github.com/oosawak/workspaceweb">WorkspaceWeb-GitHub-Repository</a> ·
+  <a href="https://oosawak.github.io/workspaceweb/web/">Web-Demo</a> ·
   <a href="https://github.com/zjok/mindzj">MindZJ-Upstream</a>
 </p>
 

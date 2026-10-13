@@ -11,7 +11,7 @@ GitHub Pages で動くブラウザーデモがあります。Web サーバー版
 
 ## GitHub Pages デモ
 
-[WorkspaceWeb を開く](https://oosawak.github.io/mindzjweb/web/)
+[WorkspaceWeb を開く](https://oosawak.github.io/workspaceweb/web/)
 
 Pages 版では、サンプル Vault のノートやリソースを閲覧できます。ノートの作成・編集や
 設定は、アクセスしたブラウザーのローカルストレージに保存されます。公開中のサンプル
