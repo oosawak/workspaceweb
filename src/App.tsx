@@ -81,6 +81,7 @@ import { ScreenshotOverlay } from "./components/screenshot/ScreenshotOverlay";
 import { promptDialog } from "./components/common/ConfirmDialog";
 import { openFileRouted } from "./utils/openFileRouted";
 import { openSpreadsheetInGridCraft } from "./utils/gridCraft";
+import { openCadDrawingInCadCraft } from "./utils/cadCraft";
 import { requestViewModeChange, saveDraftBeforeLeaving } from "./utils/editMode";
 import { editLockStore } from "./stores/editLock";
 import { displayName } from "./utils/displayName";
@@ -3768,6 +3769,43 @@ const App: Component = () => {
         }
     }
 
+    async function handleNewCadDrawing() {
+        const name = await promptDialog(t("create.cadDrawingNamePrompt"), "drawing.dxf");
+        if (!name) return;
+        const trimmedName = name.trim();
+        const fileName = /\.dxf$/i.test(trimmedName) ? trimmedName : `${trimmedName}.dxf`;
+        const safeName = fileName.replace(/[\\/\x00-\x1f]/g, "_");
+        const pathExists = (entries: VaultEntry[]): boolean =>
+            entries.some((entry) => entry.relative_path === safeName || (entry.children ? pathExists(entry.children) : false));
+        if (pathExists(vaultStore.fileTree())) {
+            document.dispatchEvent(new CustomEvent("mindzj:show-toast", { detail: t("create.fileAlreadyExists") }));
+            return;
+        }
+
+        // Minimal ASCII DXF (R2000) with an empty model space.
+        const blankDxf = [
+            "0", "SECTION", "2", "HEADER", "9", "$ACADVER", "1", "AC1015",
+            "9", "$INSUNITS", "70", "4", "0", "ENDSEC",
+            "0", "SECTION", "2", "TABLES", "0", "ENDSEC",
+            "0", "SECTION", "2", "BLOCKS", "0", "ENDSEC",
+            "0", "SECTION", "2", "ENTITIES", "0", "ENDSEC",
+            "0", "EOF", "",
+        ].join("\r\n");
+        try {
+            const bytes = new TextEncoder().encode(blankDxf);
+            let binary = "";
+            for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+                binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+            }
+            await invoke("write_binary_file", { relativePath: safeName, base64Data: btoa(binary) });
+            await vaultStore.refreshFileTree();
+            openCadDrawingInCadCraft(safeName);
+        } catch (error) {
+            console.error("Failed to create the DXF drawing:", error);
+            document.dispatchEvent(new CustomEvent("mindzj:show-toast", { detail: t("create.cadDrawingFailed") }));
+        }
+    }
+
     function handleAddResources() {
         document.dispatchEvent(new CustomEvent("mindzj:add-resource"));
     }
@@ -4102,6 +4140,7 @@ const App: Component = () => {
                                                         { label: t("create.newHtmlPage"), action: handleNewHtmlPage },
                                                         { label: t("create.newUrlShortcut"), action: handleNewUrlShortcut },
                                                         { label: t("create.newSpreadsheet"), action: handleNewSpreadsheet },
+                                                        { label: t("create.newCadDrawing"), action: handleNewCadDrawing },
                                                         { label: t("context.addResource"), action: handleAddResources },
                                                     ].map((item) => (
                                                         <button
