@@ -534,7 +534,7 @@ export const Toolbar: Component = () => {
               <button type="button" title={t("common.close")} aria-label={t("common.close")} onClick={() => setShowPrintCraftLicense(false)} style={{ ...iconButtonStyle, border: "1px solid var(--mz-border)", "border-radius": "var(--mz-radius-sm)" }}>×</button>
             </div>
             <p style={{ "line-height": "1.6", color: "var(--mz-text-secondary)" }}>{t("printcraft.licenseSummary")}</p>
-            <h3 style={{ "margin-bottom": "6px", "font-size": "var(--mz-font-size-md)" }}>{t("printcraft.mindzjChangesTitle")}</h3>
+            <h3 style={{ "margin-top": "20px", "margin-bottom": "6px", "font-size": "var(--mz-font-size-md)" }}>{t("printcraft.mindzjChangesTitle")}</h3>
             <p style={{ "line-height": "1.6", color: "var(--mz-text-secondary)" }}>{t("printcraft.mindzjChanges")}</p>
             <div style={{ display: "flex", "flex-wrap": "wrap", gap: "8px", "margin-top": "18px" }}>
               <a href="https://github.com/storytold/pdfcraft" target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("printcraft.upstreamLink")}</a>
@@ -559,7 +559,7 @@ export const Toolbar: Component = () => {
               <button type="button" title={t("common.close")} aria-label={t("common.close")} onClick={() => setShowGridCraftLicense(false)} style={{ ...iconButtonStyle, border: "1px solid var(--mz-border)", "border-radius": "var(--mz-radius-sm)" }}>×</button>
             </div>
             <p style={{ "line-height": "1.6", color: "var(--mz-text-secondary)" }}>{t("gridcraft.licenseSummary")}</p>
-            <h3 style={{ "margin-bottom": "6px", "font-size": "var(--mz-font-size-md)" }}>{t("gridcraft.mindzjChangesTitle")}</h3>
+            <h3 style={{ "margin-top": "20px", "margin-bottom": "6px", "font-size": "var(--mz-font-size-md)" }}>{t("gridcraft.mindzjChangesTitle")}</h3>
             <p style={{ "line-height": "1.6", color: "var(--mz-text-secondary)" }}>{t("gridcraft.mindzjChanges")}</p>
             <div style={{ display: "flex", "flex-wrap": "wrap", gap: "8px", "margin-top": "18px" }}>
               <a href="https://github.com/storytold/gridcraft" target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("gridcraft.upstreamLink")}</a>
@@ -584,7 +584,7 @@ export const Toolbar: Component = () => {
               <button type="button" title={t("common.close")} aria-label={t("common.close")} onClick={() => setShowFilmCraftLicense(false)} style={{ ...iconButtonStyle, border: "1px solid var(--mz-border)", "border-radius": "var(--mz-radius-sm)" }}>×</button>
             </div>
             <p style={{ "line-height": "1.6", color: "var(--mz-text-secondary)" }}>{t("filmcraft.licenseSummary")}</p>
-            <h3 style={{ "margin-bottom": "6px", "font-size": "var(--mz-font-size-md)" }}>{t("filmcraft.mindzjChangesTitle")}</h3>
+            <h3 style={{ "margin-top": "20px", "margin-bottom": "6px", "font-size": "var(--mz-font-size-md)" }}>{t("filmcraft.mindzjChangesTitle")}</h3>
             <p style={{ "line-height": "1.6", color: "var(--mz-text-secondary)" }}>{t("filmcraft.mindzjChanges")}</p>
             <p style={{ "font-size": "var(--mz-font-size-xs)", color: "var(--mz-text-muted)" }}>FilmCraft Web 0.2.1 · official release files are unmodified</p>
             <div style={{ display: "flex", "flex-wrap": "wrap", gap: "8px", "margin-top": "18px" }}>
@@ -607,7 +607,7 @@ export const Toolbar: Component = () => {
               <button type="button" title={t("common.close")} aria-label={t("common.close")} onClick={() => setShowAudioMassLicense(false)} style={{ ...iconButtonStyle, border: "1px solid var(--mz-border)", "border-radius": "var(--mz-radius-sm)" }}>×</button>
             </div>
             <p style={{ "line-height": "1.6", color: "var(--mz-text-secondary)" }}>{t("audiomass.licenseSummary")}</p>
-            <h3 style={{ "margin-bottom": "6px", "font-size": "var(--mz-font-size-md)" }}>{t("audiomass.mindzjChangesTitle")}</h3>
+            <h3 style={{ "margin-top": "20px", "margin-bottom": "6px", "font-size": "var(--mz-font-size-md)" }}>{t("audiomass.mindzjChangesTitle")}</h3>
             <p style={{ "line-height": "1.6", color: "var(--mz-text-secondary)" }}>{t("audiomass.mindzjChanges")}</p>
             <p style={{ "font-size": "var(--mz-font-size-xs)", color: "var(--mz-text-muted)" }}>AudioMass · upstream source is bundled with integration changes</p>
             <div style={{ display: "flex", "flex-wrap": "wrap", gap: "8px", "margin-top": "18px" }}>
@@ -667,7 +667,7 @@ export const Toolbar: Component = () => {
             <p style={{ "line-height": "1.6", color: "var(--mz-text-secondary)" }}>
               {t("photocraft.licenseSummary")}
             </p>
-            <h3 style={{ "margin-bottom": "6px", "font-size": "var(--mz-font-size-md)" }}>
+            <h3 style={{ "margin-top": "20px", "margin-bottom": "6px", "font-size": "var(--mz-font-size-md)" }}>
               {t("photocraft.mindzjChangesTitle")}
             </h3>
             <p style={{ "line-height": "1.6", color: "var(--mz-text-secondary)" }}>
