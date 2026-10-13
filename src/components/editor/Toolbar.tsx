@@ -19,6 +19,7 @@ import { requestViewModeChange } from "../../utils/editMode";
 import { openImageInPhotoCraft } from "../../utils/photoCraft";
 import { openPdfInPrintCraft } from "../../utils/printCraft";
 import { openSpreadsheetInGridCraft } from "../../utils/gridCraft";
+import { openCadDrawingInCadCraft } from "../../utils/cadCraft";
 import { openVideoInFilmCraft } from "../../utils/filmCraft";
 import { openAudioInAudioMass } from "../../utils/audioMass";
 import { collaborationStore } from "../../stores/collaboration";
@@ -33,6 +34,11 @@ interface ToolbarButton {
   separator?: boolean;
   shortcut?: string;
 }
+
+type FileModeButton = {
+  mode: "reading" | "live-preview" | "source" | "printcraft-edit" | "gridcraft-edit" | "cadcraft-edit" | "filmcraft-edit" | "audiomass-edit" | "photocraft-license" | "printcraft-license" | "gridcraft-license" | "cadcraft-license" | "filmcraft-license" | "audiomass-license";
+  label: string;
+};
 
 const TOOLBAR_ITEMS: ToolbarButton[] = [
   { icon: "↶", label: "toolbar.undo", command: "undo", shortcut: "Ctrl+Z" },
@@ -100,6 +106,7 @@ export const Toolbar: Component = () => {
   const [showPhotoCraftLicense, setShowPhotoCraftLicense] = createSignal(false);
   const [showPrintCraftLicense, setShowPrintCraftLicense] = createSignal(false);
   const [showGridCraftLicense, setShowGridCraftLicense] = createSignal(false);
+  const [showCadCraftLicense, setShowCadCraftLicense] = createSignal(false);
   const [showFilmCraftLicense, setShowFilmCraftLicense] = createSignal(false);
   const [showAudioMassLicense, setShowAudioMassLicense] = createSignal(false);
   const [craftVersions, setCraftVersions] = createSignal(FALLBACK_CRAFT_WEB_VERSIONS);
@@ -159,9 +166,10 @@ export const Toolbar: Component = () => {
   const isImageFile = () => vaultStore.activeFile()?.kind === "image";
   const isPdfFile = () => /\.pdf$/i.test(vaultStore.activeFile()?.path ?? "");
   const isSpreadsheetFile = () => /\.(xlsx|xlsm|xlsb|xls|ods)$/i.test(vaultStore.activeFile()?.path ?? "");
+  const isCadDrawingFile = () => /\.(dxf|dwg)$/i.test(vaultStore.activeFile()?.path ?? "");
   const isVideoFile = () => /\.(mp4|mov|m4v|webm|mkv|avi|wmv|mpg|mpeg|mxf|mts|m2ts)$/i.test(vaultStore.activeFile()?.path ?? "");
   const isAudioFile = () => /\.(mp3|wav|ogg|flac|aac|m4a|opus)$/i.test(vaultStore.activeFile()?.path ?? "");
-  const currentViewMode = () => isImageFile() || isPdfFile() || isSpreadsheetFile() || isVideoFile() || isAudioFile()
+  const currentViewMode = () => isImageFile() || isPdfFile() || isSpreadsheetFile() || isCadDrawingFile() || isVideoFile() || isAudioFile()
     ? "reading"
     : editorStore.getViewModeForFile(vaultStore.activeFile()?.path ?? null);
   const activePath = () => vaultStore.activeFile()?.path ?? null;
@@ -179,7 +187,7 @@ export const Toolbar: Component = () => {
     if (state.save === "pending") return `${t("collab.saving")} · ${t("collab.connectedCount", { count: state.participants })}`;
     return `${t("collab.saved")} · ${t("collab.connectedCount", { count: state.participants })}`;
   };
-  const modeButtons = createMemo(() => isAudioFile()
+  const modeButtons = createMemo<FileModeButton[]>(() => isAudioFile()
     ? [
         { mode: "reading" as const, label: t("context.readingView") },
         { mode: "audiomass-edit" as const, label: t("audiomass.editButton") },
@@ -201,6 +209,12 @@ export const Toolbar: Component = () => {
         { mode: "gridcraft-edit" as const, label: t("gridcraft.editButton") },
         { mode: "gridcraft-license" as const, label: t("gridcraft.licenseButton") },
       ]
+    : isCadDrawingFile()
+    ? [
+        { mode: "reading" as const, label: t("context.readingView") },
+        { mode: "cadcraft-edit" as const, label: t("cadcraft.editButton") },
+        { mode: "cadcraft-license" as const, label: t("cadcraft.licenseButton") },
+      ]
     : isImageFile()
     ? [
         { mode: "reading" as const, label: t("context.readingView") },
@@ -213,7 +227,7 @@ export const Toolbar: Component = () => {
         { mode: "source" as const, label: t("context.sourceMode") },
       ]);
   const openPhotoCraftLicense = () => setShowPhotoCraftLicense(true);
-  const selectMode = (mode: "reading" | "live-preview" | "source" | "printcraft-edit" | "gridcraft-edit" | "filmcraft-edit" | "audiomass-edit") => {
+  const selectMode = (mode: "reading" | "live-preview" | "source" | "printcraft-edit" | "gridcraft-edit" | "cadcraft-edit" | "filmcraft-edit" | "audiomass-edit") => {
     const path = activePath();
     if (isAudioFile()) {
       if (mode === "audiomass-edit" && path) openAudioInAudioMass(path);
@@ -231,11 +245,15 @@ export const Toolbar: Component = () => {
       if (mode === "gridcraft-edit" && path) openSpreadsheetInGridCraft(path);
       return;
     }
+    if (isCadDrawingFile()) {
+      if (mode === "cadcraft-edit" && path) openCadDrawingInCadCraft(path);
+      return;
+    }
     if (isImageFile()) {
       if (mode === "live-preview" && path) openImageInPhotoCraft(path);
       return;
     }
-    if (mode === "printcraft-edit" || mode === "gridcraft-edit" || mode === "filmcraft-edit" || mode === "audiomass-edit") return;
+    if (mode === "printcraft-edit" || mode === "gridcraft-edit" || mode === "cadcraft-edit" || mode === "filmcraft-edit" || mode === "audiomass-edit") return;
     if (path) void requestViewModeChange(path, mode);
   };
   const saveCurrent = () => {
@@ -497,6 +515,8 @@ export const Toolbar: Component = () => {
               ? showPrintCraftLicense()
               : mode === "gridcraft-license"
                 ? showGridCraftLicense()
+              : mode === "cadcraft-license"
+                ? showCadCraftLicense()
               : mode === "filmcraft-license"
                 ? showFilmCraftLicense()
                 : currentViewMode() === mode;
@@ -509,6 +529,8 @@ export const Toolbar: Component = () => {
                 ? setShowPrintCraftLicense(true)
                 : mode === "gridcraft-license"
                   ? setShowGridCraftLicense(true)
+                  : mode === "cadcraft-license"
+                    ? setShowCadCraftLicense(true)
                 : mode === "filmcraft-license"
                   ? setShowFilmCraftLicense(true)
                   : selectMode(mode)}
@@ -688,6 +710,28 @@ export const Toolbar: Component = () => {
         </div>
       </Show>
 
+      <Show when={showCadCraftLicense()}>
+        <div role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setShowCadCraftLicense(false); }} style={{ position: "fixed", inset: "0", display: "flex", "align-items": "center", "justify-content": "center", padding: "20px", background: "rgba(0,0,0,.58)", "z-index": "20000" }}>
+          <section role="dialog" aria-modal="true" aria-labelledby="cadcraft-license-title" style={{ width: "min(560px, 100%)", padding: "22px", color: "var(--mz-text-primary)", background: "var(--mz-bg-secondary)", border: "1px solid var(--mz-border-strong)", "border-radius": "var(--mz-radius-lg)", "box-shadow": "0 20px 60px rgba(0,0,0,.45)" }}>
+            <div style={{ display: "flex", "align-items": "center", gap: "12px", "margin-bottom": "16px" }}>
+              <h2 id="cadcraft-license-title" style={{ margin: "0", flex: "1", "font-size": "var(--mz-font-size-lg)" }}>{t("cadcraft.licenseTitle")}</h2>
+              <button type="button" title={t("common.close")} aria-label={t("common.close")} onClick={() => setShowCadCraftLicense(false)} style={{ ...iconButtonStyle, border: "1px solid var(--mz-border)", "border-radius": "var(--mz-radius-sm)" }}>×</button>
+            </div>
+            <p style={{ "line-height": "1.6", color: "var(--mz-text-secondary)" }}>{t("cadcraft.licenseSummary")}</p>
+            <h3 style={{ "margin-top": "20px", "margin-bottom": "6px", "font-size": "var(--mz-font-size-md)" }}>{t("cadcraft.workspaceChangesTitle")}</h3>
+            <p style={{ "line-height": "1.6", color: "var(--mz-text-secondary)" }}>{t("cadcraft.workspaceChanges")}</p>
+            <div style={{ display: "flex", "flex-wrap": "wrap", gap: "8px", "margin-top": "18px" }}>
+              <a href="https://github.com/storytold/cadcraft" target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("cadcraft.upstreamLink")}</a>
+              <a href={cadCraftLicenseUrl("LICENSE-MIT")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>MIT License</a>
+              <a href={cadCraftLicenseUrl("LICENSE-APACHE")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>Apache-2.0</a>
+              <a href={cadCraftLicenseUrl("ATTRIBUTION.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("cadcraft.attributionLink")}</a>
+              <a href={cadCraftLicenseUrl("MINDZJ-BUNDLE-NOTICE.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("cadcraft.workspaceChangesTitle")}</a>
+              <span style={{ width: "100%", "font-size": "var(--mz-font-size-xs)", color: "var(--mz-text-muted)" }}>CADCraft Web {craftVersions().cadcraft.version} · {craftVersions().cadcraft.commit} · WorkspaceWeb host bridge</span>
+            </div>
+          </section>
+        </div>
+      </Show>
+
       <Show when={showHeadingMenu()}>
         <div
           id="mz-heading-dropdown"
@@ -847,6 +891,11 @@ function printCraftLicenseUrl(fileName: string): string {
 function gridCraftLicenseUrl(fileName: string): string {
   const appBase = new URL(import.meta.env.BASE_URL, window.location.origin);
   return new URL(`gridcraft/${fileName}`, appBase).toString();
+}
+
+function cadCraftLicenseUrl(fileName: string): string {
+  const appBase = new URL(import.meta.env.BASE_URL, window.location.origin);
+  return new URL(`cadcraft/${fileName}`, appBase).toString();
 }
 
 function filmCraftLicenseUrl(fileName: string): string {

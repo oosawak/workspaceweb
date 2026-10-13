@@ -103,7 +103,7 @@ type PaneSlot = "primary" | "secondary";
 type EmbeddedEditorSession = {
     url: string;
     fileName: string;
-    editor: "PhotoCraft" | "PdfCraft" | "GridCraft" | "FilmCraft" | "AudioMass";
+    editor: "PhotoCraft" | "PdfCraft" | "GridCraft" | "CADCraft" | "FilmCraft" | "AudioMass";
     close: () => void;
     connect?: (frame: HTMLIFrameElement) => void;
 };
@@ -1522,6 +1522,12 @@ const App: Component = () => {
             closeEmbeddedEditor();
             setEmbeddedEditorSession(session);
         };
+        const handleOpenCadCraft = (event: Event) => {
+            const session = (event as CustomEvent<EmbeddedEditorSession>).detail;
+            if (!session?.url) return;
+            closeEmbeddedEditor();
+            setEmbeddedEditorSession(session);
+        };
         const handleOpenFilmCraft = (event: Event) => {
             const session = (event as CustomEvent<EmbeddedEditorSession>).detail;
             if (!session?.url) return;
@@ -1537,12 +1543,14 @@ const App: Component = () => {
         window.addEventListener("mindzj:open-photocraft", handleOpenPhotoCraft);
         window.addEventListener("mindzj:open-printcraft", handleOpenPrintCraft);
         window.addEventListener("mindzj:open-gridcraft", handleOpenGridCraft);
+        window.addEventListener("mindzj:open-cadcraft", handleOpenCadCraft);
         window.addEventListener("mindzj:open-filmcraft", handleOpenFilmCraft);
         window.addEventListener("mindzj:open-audiomass", handleOpenAudioMass);
         onCleanup(() => {
             window.removeEventListener("mindzj:open-photocraft", handleOpenPhotoCraft);
             window.removeEventListener("mindzj:open-printcraft", handleOpenPrintCraft);
             window.removeEventListener("mindzj:open-gridcraft", handleOpenGridCraft);
+            window.removeEventListener("mindzj:open-cadcraft", handleOpenCadCraft);
             window.removeEventListener("mindzj:open-filmcraft", handleOpenFilmCraft);
             window.removeEventListener("mindzj:open-audiomass", handleOpenAudioMass);
             embeddedEditorSession()?.close();

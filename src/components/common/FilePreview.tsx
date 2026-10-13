@@ -10,6 +10,7 @@ import { t } from "../../i18n";
 import { editLockStore } from "../../stores/editLock";
 import { openSpreadsheetInGridCraft } from "../../utils/gridCraft";
 import { openImageInPhotoCraft } from "../../utils/photoCraft";
+import { openCadDrawingInCadCraft } from "../../utils/cadCraft";
 import type { FileContent } from "../../stores/vault";
 
 export const FilePreview: Component<{
@@ -36,12 +37,13 @@ export const FilePreview: Component<{
     const [spreadsheetSheetIndex, setSpreadsheetSheetIndex] = createSignal(0);
     const [spreadsheetLoading, setSpreadsheetLoading] = createSignal(false);
     const [spreadsheetError, setSpreadsheetError] = createSignal("");
-    const previewableMedia = createMemo(() => ["HTML", "HTM", "URL", "PDF", "PSD", "XLS", "XLSX", "XLSM", "XLSB", "ODS", "MP3", "M4A", "WAV", "OGG", "FLAC", "AAC", "OPUS", "MP4", "M4V", "MOV", "AVI", "MKV", "WEBM", "OGV", "GLB", "GLTF"].includes(extension()));
+    const previewableMedia = createMemo(() => ["HTML", "HTM", "URL", "PDF", "PSD", "DXF", "DWG", "XLS", "XLSX", "XLSM", "XLSB", "ODS", "MP3", "M4A", "WAV", "OGG", "FLAC", "AAC", "OPUS", "MP4", "M4V", "MOV", "AVI", "MKV", "WEBM", "OGV", "GLB", "GLTF"].includes(extension()));
     const supportsSourceEdit = createMemo(() => ["HTML", "HTM", "URL"].includes(extension()));
     const isAudio = createMemo(() => ["MP3", "M4A", "WAV", "OGG", "FLAC", "AAC", "OPUS"].includes(extension()));
     const isVideo = createMemo(() => ["MP4", "M4V", "MOV", "AVI", "MKV", "WEBM", "OGV"].includes(extension()));
     const isModel = createMemo(() => ["GLB", "GLTF"].includes(extension()));
     const isSpreadsheet = createMemo(() => ["XLS", "XLSX", "XLSM", "XLSB", "ODS"].includes(extension()));
+    const isCadDrawing = createMemo(() => ["DXF", "DWG"].includes(extension()));
     const assetUrl = createMemo(() => {
         const root = vaultStore.vaultInfo()?.path ?? "";
         if (!root) return "";
@@ -449,6 +451,13 @@ export const FilePreview: Component<{
                                 title={fileName()}
                                 style={{ flex: "1", width: "100%", height: "100%", border: "0", background: "var(--mz-bg-primary)" }}
                             />
+                        </Show>
+                        <Show when={isCadDrawing()}>
+                            <div style={mediaStageStyle}>
+                                <div style={{ color: "var(--mz-text-primary)", "font-size": "var(--mz-font-size-lg)", "font-weight": "600", "text-align": "center", "overflow-wrap": "anywhere" }}>{fileName()}</div>
+                                <div style={{ color: "var(--mz-text-secondary)", "text-align": "center", "max-width": "560px" }}>{t("cadcraft.previewHint")}</div>
+                                <button onClick={() => openCadDrawingInCadCraft(props.filePath)} style={actionButtonStyle(true)}>{t("cadcraft.editButton")}</button>
+                            </div>
                         </Show>
                         <Show when={isAudio()}>
                             <div style={mediaStageStyle}>

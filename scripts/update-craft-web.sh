@@ -22,7 +22,7 @@ GRIDCRAFT_UPDATED=0
 
 update_one() {
   local slug="$1" repo="$2" pattern="$3"
-  local release tag asset url digest current stage public_dir pages_dir commit notice
+  local release tag asset url digest current stage public_dir pages_dir commit notice archive_index archive_root root_stage
   release="$TMP/$slug-release.json"
   curl -fsSL "https://api.github.com/repos/$repo/releases/latest" -o "$release"
   tag="$(jq -r '.tag_name' "$release")"
@@ -48,6 +48,16 @@ update_one() {
   stage="$TMP/$slug-stage"
   mkdir -p "$stage"
   unzip -q "$TMP/$asset" -d "$stage"
+  if [[ "$slug" == cadcraft && ! -f "$stage/index.html" ]]; then
+    archive_index="$(find "$stage" -mindepth 2 -maxdepth 3 -type f -name index.html -print -quit)"
+    if [[ -n "$archive_index" ]]; then
+      archive_root="${archive_index%/index.html}"
+      root_stage="$TMP/$slug-root"
+      mkdir -p "$root_stage"
+      cp -a "$archive_root/." "$root_stage/"
+      stage="$root_stage"
+    fi
+  fi
   [[ -f "$stage/index.html" ]] || { echo "Archive does not contain a root index.html: $asset" >&2; exit 1; }
   public_dir="$ROOT/public/$slug"
   pages_dir="$ROOT/docs/web/$slug"
@@ -72,7 +82,7 @@ update_one() {
   source_js="$(find "$stage" -maxdepth 1 -type f -name '*-web-*.js' | head -n 1)"
   source_wasm="$(find "$stage" -maxdepth 1 -type f -name '*-web-*_bg.wasm' | head -n 1)"
   [[ -n "$source_js" && -n "$source_wasm" ]] || { echo "Could not locate the WebAssembly app files in $asset" >&2; exit 1; }
-  find "$public_dir" "$pages_dir" -maxdepth 1 -type f \( -name 'photocraft-web-*' -o -name 'pdfcraft-web-*' -o -name 'gridcraft-web-*' \) ! -name "$(basename "$source_js")" ! -name "$(basename "$source_wasm")" -delete
+  find "$public_dir" "$pages_dir" -maxdepth 1 -type f \( -name 'photocraft-web-*' -o -name 'pdfcraft-web-*' -o -name 'gridcraft-web-*' -o -name 'cadcraft-web-*' \) ! -name "$(basename "$source_js")" ! -name "$(basename "$source_wasm")" -delete
   curl -fsSL "https://raw.githubusercontent.com/$repo/$tag/ATTRIBUTION.md" -o "$public_dir/ATTRIBUTION.md"
   cp "$public_dir/ATTRIBUTION.md" "$pages_dir/ATTRIBUTION.md"
   if curl -fsSL "https://raw.githubusercontent.com/$repo/$tag/NOTICE" -o "$public_dir/NOTICE"; then
@@ -90,6 +100,9 @@ update_one() {
     gridcraft)
       notice="GridCraft Web $tag is based on the official $repo release. WorkspaceWeb adds mindzj-loader.js and a script tag in index.html to transfer Vault spreadsheets and same-name saves. WorkspaceWeb integration code is AGPL-3.0-or-later; GridCraft's upstream license and ArtCraft trademark terms are unchanged. See ATTRIBUTION.md."
       ;;
+    cadcraft)
+      notice="CADCraft Web $tag is based on the official $repo release. WorkspaceWeb embeds CADCraft in its main pane, transfers Vault DXF/DWG files through CADCraft's ?host=parent message bridge and writes saved drawings back to the Vault. WorkspaceWeb integration code is AGPL-3.0-or-later; CADCraft's upstream license and ArtCraft trademark terms are unchanged. See ATTRIBUTION.md."
+      ;;
   esac
   printf '# WorkspaceWeb integration notice\n\n%s\n' "$notice" > "$public_dir/MINDZJ-BUNDLE-NOTICE.md"
   cp "$public_dir/MINDZJ-BUNDLE-NOTICE.md" "$pages_dir/MINDZJ-BUNDLE-NOTICE.md"
@@ -102,6 +115,7 @@ update_one() {
 update_one photocraft storytold/photocraft 'photocraft-web-.*\.zip$'
 update_one pdfcraft storytold/pdfcraft 'pdfcraft-web-.*\.zip$'
 update_one gridcraft storytold/gridcraft 'gridcraft-web-.*\.zip$'
+update_one cadcraft storytold/cadcraft 'cadcraft-web-.*\.zip$'
 
 if [[ "$MODE" == "--update" && "$FOUND_UPDATE" == 1 ]]; then
   cp "$UPDATED" "$MANIFEST"

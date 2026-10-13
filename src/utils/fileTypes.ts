@@ -118,6 +118,7 @@ const TEXT_EXTS = new Set([
 
 const PREVIEW_EXTS = new Set([
     "html", "htm",
+    "dxf", "dwg",
     "psd",
     "pdf",
     "xls", "xlsx", "xlsm", "xlsb", "ods",

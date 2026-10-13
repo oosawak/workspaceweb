@@ -10,5 +10,9 @@
   "gridcraft": {
     "version": "v0.6.1",
     "commit": "fc45b7f6d8ab79ef20f74e3c8347a2fd731e6af5"
+  },
+  "cadcraft": {
+    "version": "v0.6.2",
+    "commit": "00c7613"
   }
 }

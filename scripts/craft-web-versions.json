@@ -1,5 +1,6 @@
 {
   "photocraft": { "repository": "storytold/photocraft", "version": "v0.8.2", "asset": "photocraft-web-0.8.2.zip", "commit": "d43db3e153c76aefce9b32cef9099e458eaf17a8" },
   "pdfcraft": { "repository": "storytold/pdfcraft", "version": "v0.7.1", "asset": "pdfcraft-web-0.7.1.zip", "commit": "7163ba3dee8becfff6871c9a65d0d8314314742b" },
-  "gridcraft": { "repository": "storytold/gridcraft", "version": "v0.6.1", "asset": "gridcraft-web-0.6.1.zip", "commit": "fc45b7f6d8ab79ef20f74e3c8347a2fd731e6af5" }
+  "gridcraft": { "repository": "storytold/gridcraft", "version": "v0.6.1", "asset": "gridcraft-web-0.6.1.zip", "commit": "fc45b7f6d8ab79ef20f74e3c8347a2fd731e6af5" },
+  "cadcraft": { "repository": "storytold/cadcraft", "version": "v0.6.2", "asset": "cadcraft-web-0.6.2.zip", "commit": "00c7613" }
 }
