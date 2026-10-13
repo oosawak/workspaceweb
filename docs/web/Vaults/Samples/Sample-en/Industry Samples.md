@@ -1,6 +1,6 @@
 # Industry Samples
 
-These fictional project notes show how teams in different fields can use MindZJWeb. All organizations, people, and figures are made up for this sample.
+These fictional project notes show how teams in different fields can use WorkspaceWeb. All organizations, people, and figures are made up for this sample.
 
 | Field | Example use | Start here |
 | --- | --- | --- |

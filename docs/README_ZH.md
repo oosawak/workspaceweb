@@ -34,7 +34,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/oosawak/mindzjweb">MindZJWeb GitHub 仓库</a> ·
+  <a href="https://github.com/oosawak/mindzjweb">WorkspaceWeb GitHub 仓库</a> ·
   <a href="https://oosawak.github.io/mindzjweb/web/">Web 演示</a> ·
   <a href="https://github.com/zjok/mindzj">MindZJ 上游项目</a>
 </p>

@@ -1092,7 +1092,14 @@ export const FileTree: Component<FileTreeProps> = (props) => {
         if (!first) return "";
         return getParentDir(first.relative_path);
     };
-    const sortedEntries = () => sortEntries(props.entries, sortMode(), sortOrder(), dirPath());
+    // Mind maps remain readable through their existing handlers and AI tools,
+    // but keep their implementation-specific files out of the regular Vault tree.
+    const sortedEntries = () => sortEntries(
+        props.entries.filter((entry) => entry.is_dir || !entry.name.toLowerCase().endsWith(".mindzj")),
+        sortMode(),
+        sortOrder(),
+        dirPath(),
+    );
 
     // Install global drag tracking once & load persisted state
     installGlobalDragTracking();
@@ -1318,17 +1325,6 @@ export const FileTree: Component<FileTreeProps> = (props) => {
             action: () => addResourcesTo(dirPath),
         });
         items.push({
-            label: t("context.newMindMap"), icon: "\uD83D\uDDFA\uFE0F", separator: true,
-            action: async () => {
-                const n = await promptDialog(t("fileTree.mindzjFileNamePrompt"), t("fileTree.newMindzjDefault"));
-                if (!n) return;
-                const fileName = n.endsWith(".mindzj") ? n : `${n}.mindzj`;
-                const p = dirPath ? `${dirPath}/${fileName}` : fileName;
-                await vaultStore.createFile(p, `{"type":"mindzj","version":"0.1.0","nodes":[],"edges":[]}`);
-                await vaultStore.openFile(p);
-            },
-        });
-        items.push({
             label: t("context.rename"), icon: "\u270E", separator: true,
             action: () => renameEntry(path, isDir),
         });
@@ -1393,17 +1389,6 @@ export const FileTree: Component<FileTreeProps> = (props) => {
                 }},
                 { label: t("context.newFolder"), icon: "\uD83D\uDCC1", action: async () => { const n = await promptDialog(t("fileTree.folderNamePrompt")); if (n) await vaultStore.createDir(n); }},
                 { label: t("context.addResource"), icon: "＋", separator: true, action: () => addResourcesTo("") },
-                { label: t("context.newMindMap"), icon: "\uD83D\uDDFA\uFE0F", action: async () => {
-                    const n = await promptDialog(t("fileTree.mindzjFileNamePrompt"), t("fileTree.newMindzjDefault"));
-                    if (!n) return;
-                    const fileName = n.endsWith(".mindzj") ? n : `${n}.mindzj`;
-                    await vaultStore.createFile(fileName, `{"type":"mindzj","version":"0.1.0","nodes":[],"edges":[]}`);
-                    // Open the newly-created file so it is both the
-                    // active file (highlighted in the tree) and shown
-                    // in the editor area. The new-note (.md) branch
-                    // above does the same thing.
-                    await vaultStore.openFile(fileName);
-                }},
             ],
         });
     }

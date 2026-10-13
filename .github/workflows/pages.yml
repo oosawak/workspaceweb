@@ -1,4 +1,4 @@
-name: Deploy MindZJWeb Pages preview
+name: Deploy WorkspaceWeb Pages preview
 
 on:
   push:
@@ -32,7 +32,7 @@ jobs:
         run: npm ci
       - name: Index published Vault files
         run: npm run sync:pages-manifest
-      - name: Build MindZJ browser demo
+      - name: Build WorkspaceWeb browser demo
         run: npm run build:pages-demo
       - name: Assemble Pages site
         run: cp -R dist-pages/. docs/web/

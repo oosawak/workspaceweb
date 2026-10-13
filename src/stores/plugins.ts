@@ -1022,7 +1022,7 @@ export function listPluginCommands(): Array<{
     name: string;
     hotkeys?: Array<{ modifiers?: string[]; key?: string }>;
 }> {
-    return getAllCommands().map((cmd) => ({
+    return getAllCommands().filter((cmd) => !cmd.id.startsWith("mindzj:")).map((cmd) => ({
         id: cmd.id,
         name: cmd.name,
         hotkeys: cmd.hotkeys,

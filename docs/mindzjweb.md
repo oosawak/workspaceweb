@@ -1,8 +1,8 @@
-# MindZJWeb
+# WorkspaceWeb
 
 オフラインノートをWebでつかえるようにしました。
 
-MindZJWeb serves the existing SolidJS interface and uses the MindZJ Rust
+WorkspaceWeb serves the existing SolidJS interface and uses the MindZJ Rust
 kernel to access a Markdown vault on the server. Vault files remain ordinary
 files on disk.
 

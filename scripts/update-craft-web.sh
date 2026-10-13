@@ -82,16 +82,16 @@ update_one() {
   fi
   case "$slug" in
     photocraft)
-      notice="PhotoCraft Web $tag is based on the official $repo release. MindZJ adds mindzj-loader.js and a script tag in index.html to pass selected Vault images to PhotoCraft and return same-name saves to the original Vault path. MindZJ integration code is AGPL-3.0-or-later; PhotoCraft's upstream license and ArtCraft trademark terms are unchanged. See ATTRIBUTION.md."
+      notice="PhotoCraft Web $tag is based on the official $repo release. WorkspaceWeb adds mindzj-loader.js and a script tag in index.html to pass selected Vault images to PhotoCraft and return same-name saves to the original Vault path. WorkspaceWeb integration code is AGPL-3.0-or-later; PhotoCraft's upstream license and ArtCraft trademark terms are unchanged. See ATTRIBUTION.md."
       ;;
     pdfcraft)
-      notice="PdfCraft Web $tag is based on the official $repo release (PrintCraft is the former project name). MindZJ uses PdfCraft's ?host=parent message bridge to open Vault PDFs and write same-name saves back. MindZJ integration code is AGPL-3.0-or-later; PdfCraft's upstream license and ArtCraft trademark terms are unchanged. See ATTRIBUTION.md."
+      notice="PdfCraft Web $tag is based on the official $repo release (PrintCraft is the former project name). WorkspaceWeb uses PdfCraft's ?host=parent message bridge to open Vault PDFs and write same-name saves back. WorkspaceWeb integration code is AGPL-3.0-or-later; PdfCraft's upstream license and ArtCraft trademark terms are unchanged. See ATTRIBUTION.md."
       ;;
     gridcraft)
-      notice="GridCraft Web $tag is based on the official $repo release. MindZJ adds mindzj-loader.js and a script tag in index.html to transfer Vault spreadsheets and same-name saves. MindZJ integration code is AGPL-3.0-or-later; GridCraft's upstream license and ArtCraft trademark terms are unchanged. See ATTRIBUTION.md."
+      notice="GridCraft Web $tag is based on the official $repo release. WorkspaceWeb adds mindzj-loader.js and a script tag in index.html to transfer Vault spreadsheets and same-name saves. WorkspaceWeb integration code is AGPL-3.0-or-later; GridCraft's upstream license and ArtCraft trademark terms are unchanged. See ATTRIBUTION.md."
       ;;
   esac
-  printf '# MindZJ integration notice\n\n%s\n' "$notice" > "$public_dir/MINDZJ-BUNDLE-NOTICE.md"
+  printf '# WorkspaceWeb integration notice\n\n%s\n' "$notice" > "$public_dir/MINDZJ-BUNDLE-NOTICE.md"
   cp "$public_dir/MINDZJ-BUNDLE-NOTICE.md" "$pages_dir/MINDZJ-BUNDLE-NOTICE.md"
   jq --arg slug "$slug" --arg repo "$repo" --arg version "$tag" --arg asset "$asset" \
     --arg commit "$commit" \

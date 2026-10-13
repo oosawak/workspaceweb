@@ -1,6 +1,6 @@
-# MindZJWeb を Ubuntu サーバーで動かす
+# WorkspaceWeb を Ubuntu サーバーで動かす
 
-この手順では、GitHub の `main` を Ubuntu に clone し、MindZJWeb を
+この手順では、GitHub の `main` を Ubuntu に clone し、WorkspaceWeb を
 systemd で常時起動します。Web サーバーは `127.0.0.1:3000` のみで待ち受け、
 Nginx が HTTPS と Basic 認証を担当します。Vault は clone したリポジトリ直下の
 `Vaults/` に保存します。
@@ -62,7 +62,7 @@ mkdir -p Vaults
 ```bash
 sudo tee /etc/systemd/system/mindzjweb.service >/dev/null <<'EOF'
 [Unit]
-Description=MindZJWeb server
+Description=WorkspaceWeb server
 After=network.target
 
 [Service]
@@ -185,7 +185,7 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/mindzjweb/privkey.pem;
     client_max_body_size 128m;
 
-    auth_basic "MindZJWeb";
+    auth_basic "WorkspaceWeb";
     auth_basic_user_file /etc/nginx/.htpasswd-mindzjweb;
 
     location / {

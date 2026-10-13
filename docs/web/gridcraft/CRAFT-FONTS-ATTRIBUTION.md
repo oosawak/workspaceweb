@@ -8,4 +8,4 @@ GridCraft Web v0.6.1 embeds **BIZ UDPGothic Regular** in its WebAssembly so Japa
 - License: SIL Open Font License 1.1, included as [OFL-BIZUDPGothic.txt](OFL-BIZUDPGothic.txt)
 - Font SHA-256: `258d7156c165f2ff774b6efee637c22c3b950de0d8a10e501137061bc8085d01`
 
-The MindZJ integration patch adds the embedded font to GridCraft's Japanese glyph fallback chain. GridCraft's UI language remains English.
+The WorkspaceWeb integration patch adds the embedded font to GridCraft's Japanese glyph fallback chain. GridCraft's UI language remains English.

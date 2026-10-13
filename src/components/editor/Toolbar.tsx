@@ -545,7 +545,7 @@ export const Toolbar: Component = () => {
               <a href={printCraftLicenseUrl("OFL-BIZUDPGothic.txt")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("printcraft.japaneseFontLicense")}</a>
               <a href={printCraftLicenseUrl("CRAFT-FONTS-ATTRIBUTION.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("printcraft.japaneseFontCredits")}</a>
               <a href={printCraftLicenseUrl("MINDZJ-BUNDLE-NOTICE.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("printcraft.mindzjChangesTitle")}</a>
-              <span style={{ width: "100%", "font-size": "var(--mz-font-size-xs)", color: "var(--mz-text-muted)" }}>PdfCraft Web {craftVersions().pdfcraft.version} · {craftVersions().pdfcraft.commit} · MindZJ host bridge</span>
+              <span style={{ width: "100%", "font-size": "var(--mz-font-size-xs)", color: "var(--mz-text-muted)" }}>PdfCraft Web {craftVersions().pdfcraft.version} · {craftVersions().pdfcraft.commit} · WorkspaceWeb host bridge</span>
             </div>
           </section>
         </div>
@@ -570,7 +570,7 @@ export const Toolbar: Component = () => {
               <a href={gridCraftLicenseUrl("MINDZJ-BUNDLE-NOTICE.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("gridcraft.mindzjChangesTitle")}</a>
               <a href={gridCraftLicenseUrl("OFL-BIZUDPGothic.txt")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("printcraft.japaneseFontLicense")}</a>
               <a href={gridCraftLicenseUrl("CRAFT-FONTS-ATTRIBUTION.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("printcraft.japaneseFontCredits")}</a>
-              <span style={{ width: "100%", "font-size": "var(--mz-font-size-xs)", color: "var(--mz-text-muted)" }}>GridCraft Web {craftVersions().gridcraft.version} · {craftVersions().gridcraft.commit} · MindZJ bridge + Japanese font</span>
+              <span style={{ width: "100%", "font-size": "var(--mz-font-size-xs)", color: "var(--mz-text-muted)" }}>GridCraft Web {craftVersions().gridcraft.version} · {craftVersions().gridcraft.commit} · WorkspaceWeb bridge + Japanese font</span>
             </div>
           </section>
         </div>
@@ -674,7 +674,7 @@ export const Toolbar: Component = () => {
               {t("photocraft.mindzjChanges")}
             </p>
             <p style={{ "font-size": "var(--mz-font-size-xs)", color: "var(--mz-text-muted)" }}>
-              PhotoCraft Web {craftVersions().photocraft.version} · {craftVersions().photocraft.commit} · MindZJ Vault bridge
+              PhotoCraft Web {craftVersions().photocraft.version} · {craftVersions().photocraft.commit} · WorkspaceWeb Vault bridge
             </p>
             <div style={{ display: "flex", "flex-wrap": "wrap", gap: "8px", "margin-top": "18px" }}>
               <a href="https://github.com/storytold/photocraft" target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("photocraft.upstreamLink")}</a>
@@ -682,7 +682,6 @@ export const Toolbar: Component = () => {
               <a href={photoCraftLicenseUrl("LICENSE-APACHE")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>Apache-2.0</a>
               <a href={photoCraftLicenseUrl("NOTICE")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>NOTICE</a>
               <a href={photoCraftLicenseUrl("ATTRIBUTION.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("photocraft.attributionLink")}</a>
-              <a href={photoCraftLicenseUrl("MINDZJ-BUNDLE-NOTICE.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("photocraft.mindzjChangesTitle")}</a>
               <a href={photoCraftLicenseUrl("MINDZJ-BUNDLE-NOTICE.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("photocraft.mindzjChangesTitle")}</a>
             </div>
           </section>

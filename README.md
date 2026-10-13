@@ -1,17 +1,17 @@
-<h1 align="center">MindZJWeb</h1>
+<h1 align="center">WorkspaceWeb</h1>
 
 <p align="center">
-  MindZJ の Markdown Vault を、ブラウザーから閲覧・編集する Web 版です。
+  MindZJ の Markdown Vault を、ブラウザーから閲覧・編集する WorkspaceWeb です。
 </p>
 
-MindZJWeb には、サーバー上の Vault を複数の端末から利用する Web サーバー版と、
+WorkspaceWeb には、サーバー上の Vault を複数の端末から利用する Web サーバー版と、
 GitHub Pages で動くブラウザーデモがあります。Web サーバー版では、Vault を通常の
 ファイルとしてサーバーに保存します。ブラウザーデモはサーバーを使わず、編集内容を
 利用者のブラウザー内に保存します。
 
 ## GitHub Pages デモ
 
-[MindZJWeb を開く](https://oosawak.github.io/mindzjweb/web/)
+[WorkspaceWeb を開く](https://oosawak.github.io/mindzjweb/web/)
 
 Pages 版では、サンプル Vault のノートやリソースを閲覧できます。ノートの作成・編集や
 設定は、アクセスしたブラウザーのローカルストレージに保存されます。公開中のサンプル
@@ -86,7 +86,7 @@ Ubuntu で HTTPS、認証、systemd を設定して運用する手順は、[Web 
 ## 関連資料
 
 - [MindZJ の日本語 README](docs/README_JA.md)
-- [MindZJWeb の詳細](docs/mindzjweb.md)
+- [WorkspaceWeb の詳細](docs/mindzjweb.md)
 - [PhotoCraft・PdfCraft・GridCraftの更新手順](docs/CRAFT_WEB_UPDATES_JA.md)
 - [Ubuntu サーバーへのデプロイ手順](docs/mindzjweb/WEB_SERVER_DEPLOYMENT_JA.md)
 - [Google Group 対応 MindZJ の企業利用検討資料](docs/mindzjweb/MINDZJ_GOOGLE_GROUP_BUSINESS_PROPOSAL_JA.md)
@@ -99,7 +99,7 @@ HTTPS、認証、ファイアウォール、バックアップを設定してく
 
 ## ライセンス
 
-MindZJWeb 本体は AGPL-3.0-or-later で提供しています（別途商用ライセンスを取得した場合を除きます）。
+WorkspaceWeb 本体は AGPL-3.0-or-later で提供しています（別途商用ライセンスを取得した場合を除きます）。
 Web サービスとして運用する場合も、AGPL の条件に従ってください。
 
-PhotoCraft、PdfCraft、GridCraftには、それぞれの上流ライセンスと著作権表示が適用されます。上流ライセンス、NOTICE、素材の帰属情報、MindZJの連携内容は `public/<craft>/` と `docs/web/<craft>/` に置いてあり、アプリ内の「ライセンス」画面からも確認できます。
+PhotoCraft、PdfCraft、GridCraftには、それぞれの上流ライセンスと著作権表示が適用されます。上流ライセンス、NOTICE、素材の帰属情報、WorkspaceWebの連携内容は `public/<craft>/` と `docs/web/<craft>/` に置いてあり、アプリ内の「ライセンス」画面からも確認できます。

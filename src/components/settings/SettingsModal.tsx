@@ -13,7 +13,7 @@ import {
     onMount,
     onCleanup,
 } from "solid-js";
-import { invoke } from "../../backend";
+import { getBackendKind, invoke } from "../../backend";
 import { editorStore } from "../../stores/editor";
 import { open as dialogOpen } from "@tauri-apps/plugin-dialog";
 import { Eye, EyeOff } from "lucide-solid";
@@ -197,6 +197,7 @@ export const SettingsModal: Component<SettingsModalProps> = (props) => {
             if (detail?.pluginId) {
                 // Look up plugin name from loaded plugins
                 const plugins = (window as any).__mindzj_loadedPlugins || [];
+                if (detail.pluginId === "mindzj") return;
                 const found = plugins.find(
                     (p: any) => p.id === detail.pluginId,
                 );
@@ -2350,7 +2351,7 @@ const PluginsPanel: Component<{
         setLoading(true);
         try {
             const result = await invoke<PluginInfoFE[]>("list_plugins");
-            setPlugins(result);
+            setPlugins(result.filter((plugin) => plugin.manifest.id !== "mindzj"));
         } catch (e) {
             console.error("Failed to load plugins:", e);
         } finally {
@@ -3481,7 +3482,7 @@ const DONATION_BMC_URL = "https://www.buymeacoffee.com/superjohn";
 const DONATION_KOFI_URL = "https://ko-fi.com/superjohn";
 const DONATION_PAYPAL_URL = "https://paypal.me/TanCat997";
 
-const MindZJWebCard: Component = () => (
+const WorkspaceWebCard: Component = () => (
     <div
         style={{
             display: "flex",
@@ -3532,7 +3533,9 @@ const MindZJWebCard: Component = () => (
 const AboutPanel: Component = () => {
     return (
         <div>
-            <MindZJWebCard />
+            <Show when={getBackendKind() === "web"}>
+                <WorkspaceWebCard />
+            </Show>
 
             {/* Hero card — logo, name, tagline, version */}
             <div
@@ -3796,7 +3799,7 @@ const AboutPanel: Component = () => {
                     <span style={{ color: "var(--mz-text-muted)" }}>
                         {t("settings.framework")}
                     </span>
-                    <span>Tauri 2.0 + SolidJS</span>
+                    <span>{getBackendKind() === "web" ? "SolidJS + Rust API" : "Tauri 2.0 + SolidJS"}</span>
                 </div>
                 <div style={aboutRow}>
                     <span style={{ color: "var(--mz-text-muted)" }}>

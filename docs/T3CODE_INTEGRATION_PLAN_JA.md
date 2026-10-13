@@ -1,6 +1,6 @@
 # T3Code 連携の検討資料
 
-> 状態: 検討メモ。MindZJWeb と T3Code の連携はまだ実装していません。
+> 状態: 検討メモ。WorkspaceWeb と T3Code の連携はまだ実装していません。
 
 ## 目的
 

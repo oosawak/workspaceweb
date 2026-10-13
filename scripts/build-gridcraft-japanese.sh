@@ -32,7 +32,7 @@ for DEST in "$ROOT/public/gridcraft" "$ROOT/docs/web/gridcraft"; do
   cp "$TMP/gridcraft/NOTICE" "$DEST/NOTICE"
   cat >> "$DEST/NOTICE" <<EOF
 
-MindZJ Web build: embeds BIZ UDPGothic Regular, licensed under the SIL Open Font License 1.1. See OFL-BIZUDPGothic.txt and CRAFT-FONTS-ATTRIBUTION.md.
+WorkspaceWeb build: embeds BIZ UDPGothic Regular, licensed under the SIL Open Font License 1.1. See OFL-BIZUDPGothic.txt and CRAFT-FONTS-ATTRIBUTION.md.
 EOF
   cp "$TMP/craft-fonts/fonts/biz-ud-pgothic/OFL.txt" "$DEST/OFL-BIZUDPGothic.txt"
   cat > "$DEST/CRAFT-FONTS-ATTRIBUTION.md" <<EOF
@@ -46,11 +46,11 @@ GridCraft Web $VERSION embeds **BIZ UDPGothic Regular** in its WebAssembly to re
 - License: SIL Open Font License 1.1, included as [OFL-BIZUDPGothic.txt](OFL-BIZUDPGothic.txt)
 - Font SHA-256: 258d7156c165f2ff774b6efee637c22c3b950de0d8a10e501137061bc8085d01
 
-The MindZJ integration patch adds the embedded font to GridCraft's Japanese glyph fallback chain. GridCraft's UI language remains English.
+The WorkspaceWeb integration patch adds the embedded font to GridCraft's Japanese glyph fallback chain. GridCraft's UI language remains English.
 EOF
   cat > "$DEST/MINDZJ-BUNDLE-NOTICE.md" <<EOF
-# MindZJ integration notice
+# WorkspaceWeb integration notice
 
-GridCraft Web $VERSION is based on the official \`storytold/gridcraft\` source at commit $COMMIT. MindZJ adds \`mindzj-loader.js\` to transfer Vault spreadsheets and same-name saves and embeds BIZ UDPGothic Regular so Japanese cell data renders in browsers without Japanese system fonts. The MindZJ integration patch and loader are maintained under AGPL-3.0-or-later; GridCraft's upstream license is unchanged. The font is under SIL Open Font License 1.1; see \`OFL-BIZUDPGothic.txt\` and \`CRAFT-FONTS-ATTRIBUTION.md\`.
+GridCraft Web $VERSION is based on the official \`storytold/gridcraft\` source at commit $COMMIT. WorkspaceWeb adds \`mindzj-loader.js\` to transfer Vault spreadsheets and same-name saves and embeds BIZ UDPGothic Regular so Japanese cell data renders in browsers without Japanese system fonts. The WorkspaceWeb integration patch and loader are maintained under AGPL-3.0-or-later; GridCraft's upstream license is unchanged. The font is under SIL Open Font License 1.1; see \`OFL-BIZUDPGothic.txt\` and \`CRAFT-FONTS-ATTRIBUTION.md\`.
 EOF
 done

@@ -2008,7 +2008,7 @@ const App: Component = () => {
     createEffect(() => {
         const info = vaultStore.vaultInfo();
         if (info) {
-            document.title = `${isTauriRuntime ? "MindZJ" : "MindZJWeb"} — ${info.name}${isPagesDemo() ? "（このブラウザーに保存）" : ""}`;
+            document.title = `${isTauriRuntime ? "MindZJ" : "WorkspaceWeb"} — ${info.name}${isPagesDemo() ? "（このブラウザーに保存）" : ""}`;
             // Record last opened vault
             if (getBackendKind() !== "web") {
                 localStorage.setItem(
@@ -2017,7 +2017,7 @@ const App: Component = () => {
                 );
             }
         } else {
-            document.title = isTauriRuntime ? "MindZJ" : "MindZJWeb";
+            document.title = isTauriRuntime ? "MindZJ" : "WorkspaceWeb";
         }
     });
 

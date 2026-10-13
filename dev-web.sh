@@ -21,7 +21,7 @@ show_urls() {
 
   ips="$(hostname -I 2>/dev/null || true)"
   read -r -a addresses <<< "$ips"
-  printf 'MindZJWeb: https://localhost:%s/\n' "$vite_port"
+  printf 'WorkspaceWeb: https://localhost:%s/\n' "$vite_port"
   for address in "${addresses[@]}"; do
     [[ "$address" == 127.* || "$address" == ::1 ]] && continue
     authority="$address"
@@ -34,7 +34,7 @@ show_urls() {
 stop_server() {
   if ! is_running; then
     rm -f "$pid_file"
-    printf 'MindZJWeb development servers are not running.\n'
+    printf 'WorkspaceWeb development servers are not running.\n'
     return 0
   fi
 
@@ -49,13 +49,13 @@ stop_server() {
     kill -KILL "$pid" 2>/dev/null || true
   fi
   rm -f "$pid_file"
-  printf 'MindZJWeb development servers stopped.\n'
+  printf 'WorkspaceWeb development servers stopped.\n'
 }
 
 case "${1:-start}" in
   start)
     if is_running; then
-      printf 'MindZJWeb development servers are already running (PID %s).\n' "$(<"$pid_file")"
+      printf 'WorkspaceWeb development servers are already running (PID %s).\n' "$(<"$pid_file")"
       show_urls
       printf 'Logs: %s\n' "$log_file"
       exit 0
@@ -68,7 +68,7 @@ case "${1:-start}" in
 
     for _ in {1..50}; do
       if is_running; then
-        printf 'MindZJWeb development servers started in the background (PID %s).\n' "$(<"$pid_file")"
+        printf 'WorkspaceWeb development servers started in the background (PID %s).\n' "$(<"$pid_file")"
         show_urls
         printf 'Logs: %s (view with: %s logs)\n' "$log_file" "$0"
         printf 'Stop with: %s stop\n' "$0"
@@ -80,7 +80,7 @@ case "${1:-start}" in
       sleep 0.1
     done
 
-    printf 'Could not start MindZJWeb. Recent log output:\n' >&2
+    printf 'Could not start WorkspaceWeb. Recent log output:\n' >&2
     tail -n 40 "$log_file" >&2 || true
     exit 1
     ;;
@@ -89,12 +89,12 @@ case "${1:-start}" in
     ;;
   status)
     if is_running; then
-      printf 'MindZJWeb development servers are running (PID %s).\n' "$(<"$pid_file")"
+      printf 'WorkspaceWeb development servers are running (PID %s).\n' "$(<"$pid_file")"
       show_urls
       printf 'Logs: %s\n' "$log_file"
     else
       rm -f "$pid_file"
-      printf 'MindZJWeb development servers are not running.\n'
+      printf 'WorkspaceWeb development servers are not running.\n'
       exit 1
     fi
     ;;

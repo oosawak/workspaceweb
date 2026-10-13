@@ -1,6 +1,6 @@
-# Über MindZJWeb
+# Über WorkspaceWeb
 
-MindZJWeb ist eine browserbasierte Notiz-App für Markdown-Notizen und Materialien zur Spieleentwicklung. Notizen und Ressourcen lassen sich in Ordnern organisieren und im Browser ansehen und bearbeiten.
+WorkspaceWeb ist eine browserbasierte Notiz-App für Markdown-Notizen und Materialien zur Spieleentwicklung. Notizen und Ressourcen lassen sich in Ordnern organisieren und im Browser ansehen und bearbeiten.
 
 ## Hauptfunktionen
 

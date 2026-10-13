@@ -1,10 +1,10 @@
-# AudioMass integration in MindZJ
+# AudioMass integration in WorkspaceWeb
 
-MindZJ bundles the upstream AudioMass web application from commit `21f5ee1`.
-The upstream application files are kept unmodified. MindZJ integration code is
+WorkspaceWeb bundles the upstream AudioMass web application from commit `21f5ee1`.
+The upstream application files are kept unmodified. WorkspaceWeb integration code is
 implemented in `src/utils/audioMass.ts` and the editor toolbar.
 
-## MindZJ integration changes
+## WorkspaceWeb integration changes
 
 - Opens the selected Vault audio file in the embedded AudioMass editor.
 - Supports recording through the browser microphone permission prompt.

@@ -1,6 +1,6 @@
 # PdfCraft連携
 
-MindZJWebは [PdfCraft](https://github.com/storytold/pdfcraft) の公式Webリリース v0.7.1 を同梱しています。PrintCraftはPdfCraftへ改名されました。Web版はMIT LicenseまたはApache License 2.0で提供されています。
+WorkspaceWebは [PdfCraft](https://github.com/storytold/pdfcraft) の公式Webリリース v0.7.1 を同梱しています。PrintCraftはPdfCraftへ改名されました。Web版はMIT LicenseまたはApache License 2.0で提供されています。
 
 ## MindZJ側の連携
 
@@ -11,6 +11,6 @@ MindZJWebは [PdfCraft](https://github.com/storytold/pdfcraft) の公式Webリ�
 
 ## 同梱物とライセンス
 
-`public/pdfcraft` と `docs/web/pdfcraft` に公式Webビルド、ライセンス、NOTICE、素材帰属情報を置いています。MindZJの統合コードはMindZJWebのAGPL-3.0-or-laterに従います。PdfCraft本体のライセンスやArtCraftのブランド条件は変わりません。
+`public/pdfcraft` と `docs/web/pdfcraft` に公式Webビルド、ライセンス、NOTICE、素材帰属情報を置いています。MindZJの統合コードはWorkspaceWebのAGPL-3.0-or-laterに従います。PdfCraft本体のライセンスやArtCraftのブランド条件は変わりません。
 
 アップデート確認とWeb成果物の取得には [`scripts/update-craft-web.sh`](../scripts/update-craft-web.sh) を使います。

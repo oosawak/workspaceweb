@@ -421,7 +421,7 @@ export const WelcomeScreen: Component = () => {
       >
         <img
           src={`${import.meta.env.BASE_URL}mindzj-logo.png`}
-          alt={getBackendKind() === "web" ? "MindZJWeb logo" : "MindZJ logo"}
+          alt={getBackendKind() === "web" ? "WorkspaceWeb logo" : "MindZJ logo"}
           width="64"
           height="64"
           style={{
@@ -446,8 +446,7 @@ export const WelcomeScreen: Component = () => {
         >
           {getBackendKind() === "web" ? (
             <>
-              Mind<span style={{ color: "var(--mz-accent)" }}>ZJ</span>
-              <span style={{ color: "#4f8cff" }}>Web</span>
+              Workspace<span style={{ color: "#4f8cff" }}>Web</span>
             </>
           ) : (
             <>Mind<span style={{ color: "var(--mz-accent)" }}>ZJ</span></>

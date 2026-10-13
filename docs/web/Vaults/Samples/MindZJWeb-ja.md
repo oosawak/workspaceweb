@@ -8,9 +8,9 @@ Lyre3 Gamesは HTML + WASM(Rustg)を使ったゲーム制作をしています�
 | ![Lyre3GamesCard.jpg:x400](/Lyre3 Games(Web Game・Application)/Lyre3GamesCard.jpg) | ![Sample.webp:x400](/Sample.webp) |
 
 
-# MindZJWeb について
+# WorkspaceWeb について
 
-MindZJWeb は、Markdown の資料をまとめて扱う Web 版ノートアプリです。
+WorkspaceWeb は、Markdown の資料をまとめて扱う Web 版ノートアプリです。
 フォルダーで整理したノートやリソースを、ブラウザーから閲覧・編集できます。
 [MindZJ](https://zenn.dev/superjohn/articles/752679bdcdc37e)を Web で利用できるように修正しています。
 

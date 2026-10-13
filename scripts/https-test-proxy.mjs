@@ -26,7 +26,7 @@ if (!existsSync(certPath) || !existsSync(keyPath)) {
   execFileSync("openssl", [
     "req", "-x509", "-newkey", "rsa:2048", "-nodes",
     "-keyout", keyPath, "-out", certPath, "-days", "14",
-    "-subj", "/CN=MindZJWeb HTTPS test",
+    "-subj", "/CN=WorkspaceWeb HTTPS test",
     "-addext", `subjectAltName=${[...sans].join(",")}`,
   ], { stdio: "ignore" });
 }
@@ -51,7 +51,7 @@ const proxy = https.createServer({ key: readFileSync(keyPath), cert: readFileSyn
 
 const port = Number(process.env.MINDZJ_HTTPS_PORT ?? 3443);
 proxy.listen(port, "0.0.0.0", () => {
-  console.log(`MindZJWeb HTTPS test proxy listening on https://localhost:${port}`);
+  console.log(`WorkspaceWeb HTTPS test proxy listening on https://localhost:${port}`);
   console.log(`Self-signed test certificate: ${certPath}`);
   console.log("Import/trust this certificate in the browser to enable secure-context APIs.");
 });
