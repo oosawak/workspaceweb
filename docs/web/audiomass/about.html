@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>AudioMass - About</title>
+	<meta charset="utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1"/>  
+
+	<meta name="description" content="AudioMass is a free full-featured web-based audio &amp; waveform editing tool"/>
+	<meta property="og:image" content="https://audiomass.co/icon.jpg"/>
+	<meta property="og:title" content="AudioMass">
+	<meta property="og:url" content="https://audiomass.co/">
+	<meta property="og:description" content="AudioMass is a free full-featured web-based audio &amp; waveform editing tool">
+	<meta name="keywords" content="AudioMass, WebAudio, WaveForm, audio editing, free audio editing, audio tool, waveform editor, sound editor, open source">
+	<link href="/ico.ico" rel="shortcut icon">
+
+<style>
+	body{
+		padding:0;margin:0;
+		font-family: "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+		color:rgb(5, 10, 5);
+		background:#fefefe
+	}
+	#w{
+		width: 90%;
+		max-width:960px;
+		margin:0 auto
+	}
+
+	#w > div{
+		padding:20px 0 0 0
+	}
+
+	p{
+		line-height:21px;
+		font-size:16px;
+		margin-bottom:1.2em
+	}
+
+	h1{
+		font-size: 26px;
+		margin-top:35px
+	}
+
+	h5{
+		font-size:1em;
+		margin-bottom:0
+	}
+
+	.top{
+		max-width:100%;
+		outline:0;
+		display:inline-block
+	}
+
+	.mid{
+		max-width:504px;
+		width: 90%;
+		outline:0;
+		margin-bottom:16px;
+		display:inline-block
+	}
+
+	.nomarg{
+		margin-bottom:0
+	}
+
+	pre {
+	    padding:12px 16px;
+	    display:inline-block;
+	    border-radius:6px;
+	    background:#e1f3e9;
+	    text-shadow:0 1px #fff;
+	    border-bottom:1px solid #aaa;
+	    max-width:90%;
+	    overflow:scroll
+	}
+
+	ul {
+		padding:0;
+		list-style:none
+	}
+
+	li {
+		padding:0 0 3px 0;
+		color:#333;
+		font-size:0.92em
+	}
+
+	video {
+		max-width:660px;
+		width:90%;
+	}
+
+	::-moz-selection { background: #080808; color:#fff; text-shadow:none }
+	::selection { background: #080808;  color:#fff; text-shadow:none }
+</style>
+</head>
+<body>
+<div id="w">
+
+
+<div>
+<h1>Introducing AudioMass (<a href="https://audiomass.co" target="_blank">https://audiomass.co</a>) an open-source web based audio and waveform editing tool.</h1>
+
+
+<img class="top" src="/about/audiomass_top.jpg" />
+
+
+<p>AudioMass lets you record, or use your existing audio tracks, and modify them by trimming, cutting, pasting or applying effects, from compression and paragraphic equalizers to reverb, delay, repair tools, pitch/speed profiles and multitrack mixdown. AudioMass also supports hotkeys, offline use and a responsive interface so quick edits stay quick.
+it is written solely in plain old-school javascript, weighs under 100kb compressed and has no backend or framework dependencies.</p>
+
+<img class="mid" src="/about/audiomass_support.jpg" />
+<p>It also has very good browser and device support.</p>
+
+
+<h5>:: Feature List ::</h5>
+
+<ul>
+<li><a href="#getting-started">Loading Audio, navigating the waveform, zoom and pan</a></li>
+<li><a href="#waveform-tools">Visualization of frequency levels</a></li>
+<li><a href="#waveform-tools">Peak and distortion signaling</a></li>
+<li><a href="#waveform-tools">Cutting/Pasting/Trimming parts of the audio</a></li>
+<li><a href="#waveform-tools">Inverting and Reversing Audio</a></li>
+<li><a href="#waveform-tools">Zero-crossing selection tools</a></li>
+<li><a href="#markers">Markers / trackers for cue points and quick jumps</a></li>
+<li><a href="#beat-tools">Automatic beat detection, beat bars and snap-to-beat</a></li>
+<li><a href="#recording-audio">Recording Audio</a></li>
+<li><a href="#export-mp3">Exporting to mp3</a></li>
+<li><a href="#effects">Modifying volume levels</a></li>
+<li><a href="#effects">Fade In/Out</a></li>
+<li><a href="#effects">Compressor</a></li>
+<li><a href="#effects">Normalization</a></li>
+<li><a href="#effects">Reverb</a></li>
+<li><a href="#effects">Delay</a></li>
+<li><a href="#effects">Distortion</a></li>
+<li><a href="#effects">Pitch Shift</a></li>
+<li><a href="#effects">Graph-based pitch / speed profiles</a></li>
+<li><a href="#effects">Click, hum and edit repair</a></li>
+<li><a href="#seamless-loops">Creating seamless loops with crossfade preview</a></li>
+<li><a href="#undo-offline">Keeps track of states so you can undo mistakes</a></li>
+<li><a href="#undo-offline">Offline support!</a></li>
+<li><a href="#multitrack">Multitrack editing and mixdown</a></li>
+<li><a href="#changelog">Recent changelog</a></li>
+<li><a href="#license">License and third-party notes</a></li>
+</ul>
+
+<p>And all this, still under 100kb of JS!</p>
+</div>
+
+
+<div>
+<h3 id="getting-started">Getting Started</h3>
+
+
+<p>To get started, drag and drop an audio file, or try the included sample.<br />
+Once the file is loaded and you can view the waveform, zoom in, pan around, or select a region.</p>
+
+<img class="mid" src="/about/audiomass_2.jpg" />
+
+<h3 id="waveform-tools">Waveform Tools</h3>
+
+<p>The main editor is built around fast region editing. Select part of the waveform to cut, copy, paste, trim, silence, reverse, invert, or process only that section. The display also includes frequency visualization, peak/distortion signaling and zero-crossing selection, so you can spot obvious problems and avoid rough edit points while editing.</p>
+
+<h3 id="markers">Markers / Trackers</h3>
+
+<p>Markers are little named trackers you can drop on the waveform when a spot matters. Press <i>[M]</i>, double-click the top ruler, or right-click and choose <i>Add Marker Here</i>. You can drag them around, rename or delete them, jump between them with <i>[</i> and <i>]</i>, or hold <i>[Shift]</i> while jumping to quickly turn the space between markers into a selection. Simple, tiny, and very useful when you are editing something longer than a ringtone.</p>
+
+<h3 id="beat-tools">Beat Tools</h3>
+
+<p>AudioMass can detect a rough tempo, draw metronome beat bars and snap edits to those beats. It is a small helper for loops, repeats and timing fixes, without turning the editor into a full DAW screen when you do not need one.</p>
+
+<h3 id="effects">Effects And Processing</h3>
+
+<p>AudioMass includes the usual quick processing tools: gain, fade in/out, compressor, normalization, reverb, delay, distortion and pitch shifting. There is also a graph-based pitch/speed profile for ramps and Doppler-style moves, plus repair tools for clicks, hum and hard edit points. Effects can be previewed before applying, and most of them work on either the current selection or the whole file.</p>
+
+<h3 id="seamless-loops">Creating Seamless Loops</h3>
+
+<p>Select a region and use <i>Edit &gt; Seamless Loop</i>, or right-click the waveform and choose <i>Seamless Loop</i>. AudioMass opens a small loop preview where you can adjust the crossfade, trim silence from the edges, snap to smoother zero crossings, click around the preview to test the loop, repeat it, then apply it back to the file or open it in a new editor tab.</p>
+
+<h3 id="undo-offline">Undo And Offline</h3>
+
+<p>AudioMass keeps an undo stack for edits, so you can experiment without committing every change permanently. It also runs locally in the browser with no backend, and can keep working offline after it has been loaded.</p>
+
+<h3 id="recording-audio">Recording Audio</h3>
+
+<p>To record audio, simply press the Recording button, or the <i>[R]</i> key.</p>
+
+<img class="mid" src="/about/audiomass_3.jpg" />
+
+
+<h3 id="export-mp3">Exporting to mp3</h3>
+
+<p>In order to export back to mp3, click on 'File', then 'Export to mp3', and follow the modal's instructions.</p>
+
+<img class="mid" src="/about/audiomass_4.jpg" />
+
+</div>
+
+
+<hr />
+
+
+<div>
+<h3>The story behind AudioMass. And a short rant on web interfaces.</h3>
+
+<p>I wrote AudioMass back in June 2018 and it stayed dormant on my hard disk until I decided to share it with the world today (July 13th, 19, but you might be seeing this in 2020. Hi!!).
+It started as a personal small tool for quick visualization of waveforms. Later I added the ability to cut/copy/paste as well as fade in and out. And soon after good 'ol feature creep and perfectionism took over! Soon after, it turned to a challenge to see how close to a full-featured waveform editor it can get, whilst maintaining acceptable performance and small filesize.</p>
+
+<p>In general I am a big fan of the interfaces of DAWs <i>(Digital Audio Workstations)</i>, they are extremely, complex, intricate, versatile, and they manage to remain visually pleasant even through their infinite options and knobs. Many times I feel the web has taken a very wrong turn, as amazing interfaces such as...
+
+<p class="nomarg">Sonar</p>
+<img class="mid" src="/about/sonar.jpg" />
+
+<br />
+<p class="nomarg">Fruity loops</p>
+<img class="mid" src="/about/fruity.png" />
+
+<br />
+
+<p>Existed for more than 10-15 years now, while we are struggling with animating some rectangles for 60fps... So for AudioMass I wanted to try and make a fast and performant interface. Drawing inspiration from the examples I mentioned earlier rather than the tradiional web development practices. This is my unconvincing but truthfull excuse as to why the code is ugly; it is focused on being fast and getting the job done, with little regard on structure.</p>
+
+<p>For the record: AudioMass was started in 2018, multitrack was added but never deployed in 2022, and to this day the thing is still about 90% handcrafted using older web technologies and a slightly old-school coding style. I keep working on it mostly because it is fun, which, in 2026, I have been reliably informed is still a valid reason to write software :)</p>
+
+<p>Going forward I would like to slowly clean up the multitrack logic and redo the rendering fully in canvas (or maybe WebGPU, we'll see), and, if I can pull it off, try to elevate AudioMass into something that stands a little closer to a proper professional audio workflow on the web. It is also not particularly well-optimized for mobile right now, but hopefully that is something that can be smoothed out with time.</p>
+
+</div>
+
+<hr />
+
+<div>
+
+<h3>Building the interface</h3>
+
+<p>Let's say we have a <i>"PLAY"</i> button and when we press it the track begins to play. I suppose we would want the button's color and state to reflect that the track is now playing. So naively we would do something like;</p>
+
+
+<pre><code>btn.onclick = function () {
+	this.classList.add ('active');
+};</code></pre>
+
+<p>But what happens if we have a hotkey that triggers the same action? Let's say we press <i>[SPACEBAR]</i> and the track begins to play. Do we modify that button's class in the spacebar's handler?</p>
+
+<pre><code>document.onkeypress = function ( e ) { 
+  if ( e.keyCode === 32) {
+       e.preventDefault ();
+
+       document.querySelector ('.playbtn').classList.add ('active');
+  }
+};</code></pre>
+
+<p>And what happens, if there are 2 buttons, or one gets dynamically removed? Do we do selectAll and iterate? Hmmm...<br />
+And if the track is playing and we hit <i>[SPACEBAR]</i> or the play button again, we need to stop playing. What do we do then? You can see how this becomes messy very quickly as everything gets very tighlty coupled together in a big dependency ball.</p>
+
+
+
+<p>Introducing the observer pattern. Actions are represented by events. So the above logic and be expressed as;</p>
+
+
+<pre><code>btn.onclick = function () {
+	FireEvent ('RequestTogglePlay');
+};
+
+On ('WillPlay', function () {
+	btn.classList.add ('active');
+});
+
+On ('WillStop', function () {
+	btn.classList.remove ('active');
+});
+
+
+
+document.onkeypress = function ( e ) {
+  if ( e.keyCode === 32) {
+       e.preventDefault ();
+
+       FireEvent ('RequestTogglePlay');
+  }
+};
+
+
+
+On ('RequestTogglePlay', function () {
+	if (track.is_playing) {
+		FireEvent ('WillStop');
+		track.stop ();
+	}
+	else {
+		FireEvent ('WillPlay');
+		track.play ();
+	}
+});
+
+track.onPlayStart = function () {
+	FireEvent ('DidPlay');
+};
+track.onPlayStop = function () {
+	FireEvent ('DidStop');
+};
+</code></pre>
+
+<p>Now this is completely decoupled and dependency free! The button will set its state according to the events it receives, and both the button and the spacebar key rely on the same mechanisms.
+You may notice the vocabulary we are using. <i>"Request"</i>, <i>"Will"</i> and <i>"Did"</i>. These are arbitrarilly chosen to impose some extra structure.<br /> <i>"Request"</i> denotes intent to perform an action, it is not guaranteed that the action will execute as there might be conditions preventing it (eg unitialized or still loading objects). <i>"Will"</i> means that the conditions passed and we are attempting to perform the action. And <i>"Did"</i> means that the action just got performed.<br />
+It might be a bit too verbose, but it worked very well for structuring AudioMass's interface.</p>
+</div>
+
+<hr />
+
+<div>
+<h3>Dockable UI</h3>
+
+<p>One thing I love about DAW interfaces, is that every window can be pulled out of the main host. I fondly remember having 3 screens full of VST plugins. So can we do the same in the browser?</p>
+
+
+<video src="/about/dock_ui.mp4" autoplay muted playsinline controls loop></video>
+
+
+<p>Yes! And it is using some of the oldest tricks in the book. Essentially we create a pop-up window with <i>window.open</i> and just pass buffers to its <i>documentWindow</i> object. Surprisingly it is quite performant on all browsers except IE Edge. I believe they are serializing in ascii or base64 every packet or something. Also Chrome has an interesting bug where you can't pass more than 512 byte buffers.</p>
+
+<p>So for the undocked window, we call <i>window.open</i>. But how do we make it work when it is docked? It would be quite cumbersome to write the same functionality twice, once as a standalone page, and once as an in-page script. Luckily we can avoid that completely, and re-use the same page by using iframes.</p>
+
+<p>The only difference is that the undocked version uses <i>window.opener</i> to refference its parent, whereas the iframe uses <i>window.parent</i>.</p>
+
+</div>
+
+
+<hr />
+
+<div>
+<h3 id="multitrack">Multitrack <small>(back in 2026!)</small></h3>
+
+<img class="top" src="/about/multitrack.png" />
+
+<p>So remember when I said the next big feature was going to be multitrack support? Well, it is finally here. AudioMass now has a proper multitrack mode where you can layer multiple tracks, mix them together and bounce the whole thing back down to a single file. It is essentially a small DAW bolted on top of the regular waveform editor, sharing the same engine, the same hotkeys and the same effects.</p>
+
+<p>Hit the <i>MultiTrack</i> button up in the top header and you get a fresh session with a couple of empty channels. Drag and drop audio files onto a track, or anywhere on the canvas really, and they will land where you dropped them. Each file becomes a <i>clip</i> that you can grab and slide around freely on its lane.</p>
+
+<p>Clips can be trimmed by dragging their edges, faded in or out by pulling the little corner handles, split at the playhead with <i>[Ctrl/Cmd + X]</i>, copied, duplicated, renamed and deleted. When two clips on the same track overlap, AudioMass automatically draws a crossfade in the overlap region so your transitions stay smooth instead of clicking. The crossfade follows the clips around. Drag either side and the curve readjusts on its own.</p>
+
+<p>Each track header has the usual suspects: volume, pan, mute, solo and record-arm. The little round knobs are continuous (drag up/down) and double-clicking resets them. There is also a separate <i>Mixer</i> view if you prefer the vertical-strips-with-big-meters look while you are mixing.</p>
+
+<p>Recording works just like in the single-track editor, except it records onto whichever track is armed. You can punch in, monitor with the meters, and the moment you stop, the recorded blob immediately becomes a regular clip you can move and edit like an imported file. Multiple takes stack into the same track without losing previous ones.</p>
+
+<p>Effects can be applied to the whole clip or to a region within it. Processing goes through an <i>OfflineAudioContext</i>, so it is non-destructive until you commit, and you can preview it live before applying. The undo stack covers every clip-level edit too, so you can experiment freely.</p>
+
+<p>The whole session, tracks, clips, fades, knob values, the lot, can be saved out as a <i>.amss</i> file. It is just a wrapper around the raw audio plus some JSON describing the layout, compressed with LZMA. Drop it back in later and you pick up exactly where you left off. To export the final mix use <i>Mixdown</i>, and everything gets bounced through an offline render to a single wav or mp3, like any normal export.</p>
+
+<p>Snapping to clip edges, the playhead and the region works while dragging, and the whole thing is reasonably mobile-friendly with touch gestures, pinch-to-zoom on the timeline and long-press context menus. It is not Pro Tools, but for arranging takes, building podcasts or stitching ideas together quickly in a browser tab, it gets the job done :)</p>
+
+<h5>:: Multitrack Keyboard Shortcuts ::</h5>
+
+<ul>
+<li><i>[Space]</i>: play / stop &nbsp;&nbsp;&nbsp; <i>[Shift + Space]</i>: pause</li>
+<li><i>[R]</i>: toggle recording on the armed track</li>
+<li><i>[&larr;]</i> / <i>[&rarr;]</i>: seek (auto-accelerates the longer you hold)</li>
+<li><i>[Shift + &larr;]</i> / <i>[Shift + &rarr;]</i>: jump to region edges / start / end</li>
+<li><i>[&uarr;]</i> / <i>[&darr;]</i>: select previous / next channel</li>
+<li><i>[Tab]</i>: center the view on the playhead</li>
+<li><i>[Ctrl/Cmd + X]</i>: split the selected clip at the playhead</li>
+<li><i>[X]</i>: toggle a crossfade between overlapping clips</li>
+<li><i>[Ctrl/Cmd + C]</i> / <i>[Ctrl/Cmd + V]</i>: copy / paste a clip</li>
+<li><i>[Backspace]</i> / <i>[Delete]</i>: delete the selected clip</li>
+<li><i>[Ctrl/Cmd + Z]</i> / <i>[Ctrl/Cmd + Y]</i>: undo / redo (covers every clip-level edit)</li>
+<li><i>[Ctrl/Cmd + A]</i>: select the whole arrangement as a region</li>
+<li><i>[Ctrl/Cmd + S]</i>: open the save / export menu</li>
+<li><i>[Esc]</i>: close any open context menu</li>
+</ul>
+
+<p>The <i>Shift + key</i> variants of the above (eg. <i>Shift + C</i> for copy) work too. They were the originals from before the <i>Ctrl/Cmd</i> bindings were added, kept around so old muscle memory doesn't break.</p>
+
+</div>
+
+<hr />
+
+<div>
+<h3 id="changelog">Recent Changelog</h3>
+
+<ul>
+<li><b>July 2022</b>: Multitrack mode with clips, fades, mixer controls, recording and mixdown.</li>
+<li><b>January 2026</b>: <i>.amss</i> session files, so multitrack projects can be saved and opened again later.</li>
+<li><b>February 2026</b>: Pitch / Speed Profile with graph editing, finer controls, Doppler-style presets and live preview seeking.</li>
+<li><b>March 2026</b>: Automatic beat detection, metronome bars and snap-to-beat editing.</li>
+<li><b>April 2026</b>: New repair tools for clicks, hum and hard edit points.</li>
+<li><b>May 2026</b>: Seamless Loop with crossfade preview, silence trim, zero-crossing snap, repeat and open-in-new-editor.</li>
+<li><b>May 2026</b>: Small UI polish passes, including precise time boxes, zero-cross selection mode and update-ready reload notices.</li>
+</ul>
+
+</div>
+
+<hr />
+
+<div>
+<h3 id="license">License</h3>
+
+<p>AudioMass itself is MIT licensed. I want it to stay free and useful: use it, modify it, learn from it, ship it, whatever helps. A few bundled libraries keep their own licenses, mostly BSD-style, with the MP3 encoder under LGPL. The repo includes a short third-party notices file with the full list.</p>
+
+</div>
+
+<hr />
+
+<div>
+<h3>Future work and performance considerations</h3>
+
+<hr />
+
+<p>There is also a lot of room for improvement in almost all aspects.</p>
+
+<p>First of all we can further reduce the filesize by around 20kb by removing the library we are using for rendering the waveform. We use only a fraction of its functionality so there is no reason to include it all.</p>
+
+<p>We can also optimize a lot the rendering of the waveform. I heavily modified the library used to compute and draw only the visible range. However it is still clearing and re-drawing all of the canvas at each frame. We can take advantage of 2d Context's translate calls, and shift the canvas around instead of redrawing all of the pixels.</p>
+
+<p>We can also move some operations to a background thread, such as the filters processing so that the UI does not freeze when applying a long chain of effects.</p>
+
+<br />
+
+
+<p>However, the biggest issue I encountered, is the Web Audio API itself. Every operation results in iterating over multiple long arrays per frame. Eventually the garbage collector fires and crackling is introduced. Only way to go around this is to use a small fftSize, but then the frequency range we have to work with is very narrow. Perhaps a pure WASM implementation would outperform trying to modify audio signals with JS. Only one way to find out I guess :) </p>
+<p>Additionally, <i>decodeAudioData</i> provides no progress callback, and no way of cancelling it. So if you attempt to load a huge audio file, you will waste resources until it gets processed. There is no way around this currently and it can get annoying if you push a big file by mistake.</p>
+
+</div>
+
+<br /><br /><br />
+
+</div>
+</body>
+
+</html>

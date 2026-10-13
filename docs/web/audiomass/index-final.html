@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>AudioMass - Audio Editor</title>
+	<link href="ico.png" rel="shortcut icon">
+	<meta charset="utf-8" />
+	<link rel="manifest" href="manifest.json">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+	<meta name="description" content="AudioMass is a free full-featured web-based audio &amp; waveform editing tool"/>
+	<meta property="og:image" content="https://audiomass.co/icon.jpg"/>
+	<meta property="og:title" content="AudioMass">
+	<meta property="og:url" content="https://audiomass.co/">
+	<meta property="og:description" content="AudioMass is a free full-featured web-based audio &amp; waveform editing tool">
+	<meta name="keywords" content="AudioMass, WebAudio, WaveForm, audio editing, free audio editing, audio tool, waveform editor, sound editor, open source">
+	<link rel="apple-touch-icon" href="https://audiomass.co/icon-app.png">
+	<meta name="mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-title" content="AudioMass">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:site" content="@pkalogiros">
+	<meta name="twitter:creator" content="@pkalogiros">
+	<meta name="twitter:title" content="AudioMass - Audio Editor">
+	<meta name="twitter:description" content="AudioMass is a free full-featured web-based audio &amp; waveform editing tool">
+	<meta name="twitter:image" content="https://audiomass.co/icon.jpg">
+
+	<link rel="stylesheet" type="text/css" href="all.css">
+</head>
+<body>
+	<div id="app"></div>
+	<script src="all.build.js"></script>
+	<script>
+		var editor = PKAudioEditor.init ('app');
+		if ('serviceWorker' in navigator) {
+			window.addEventListener('load', () => {
+				try {
+					var rl = 0;
+					function nr ( sw ) {
+						if (document.getElementById ('pk_upd')) return ;
+						var el = document.createElement ('div');
+						el.id = 'pk_upd';
+						el.className = 'pk_oneup';
+						el.style.cssText = 'top:58px;margin-top:0;opacity:1;transform:translateX(-50%);pointer-events:auto;font-size:13px';
+						el.innerHTML = 'New version ready <button class="pk_modal_a_bottom pk_modal_a_accpt" style="float:none;display:inline-block;margin-left:10px">Reload</button>';
+						document.body.appendChild ( el );
+						el.getElementsByTagName ('button')[0].onclick = function () {
+							rl = 1;
+							sw && sw.postMessage ('SKIP_WAITING');
+							setTimeout (function () { location.reload (); }, 900);
+						};
+					}
+					navigator.serviceWorker.addEventListener ('controllerchange', function () { rl && location.reload (); });
+					navigator.serviceWorker.register( 'sw.js' ).then (function (r) {
+						function ch ( sw ) { sw && (sw.state === 'installed' && navigator.serviceWorker.controller ? nr (sw) : sw.onstatechange = function () { sw.state === 'installed' && navigator.serviceWorker.controller && nr (sw); }); }
+						r.waiting && navigator.serviceWorker.controller && nr (r.waiting);
+						ch (r.installing);
+						r.onupdatefound = function () { ch (r.installing); };
+					});
+				} catch ( error ) {}
+			});
+		}
+	</script>
+
+</body>
+</html>

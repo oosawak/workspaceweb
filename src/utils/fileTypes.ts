@@ -8,10 +8,10 @@
  *   - `.mindzj` (or any plugin-registered extension) goes into a
  *     plugin view.
  *   - Images open in an in-app preview tab.
- *   - PDFs, common audio/video files, and glTF models open in-app.
+ *   - PDFs, supported spreadsheets, common audio/video files, and glTF models open in-app.
  *   - `.doc/.docx` open in an in-app placeholder tab with actions.
- *   - Other Office documents, archives, and unsupported media formats are
- *     delegated to the operating system's default app.
+ *   - Unsupported Office documents, archives, and media formats are delegated
+ *     to the operating system's default app.
  */
 
 export type FileHandler =
@@ -21,9 +21,11 @@ export type FileHandler =
     | "plugin"
     /** Open in an in-app image preview tab. */
     | "image"
+    /** Open layered Photoshop documents in the integrated PhotoCraft editor. */
+    | "photocraft"
     /** Open in an in-app document placeholder tab. */
     | "preview"
-    /** Delegate to the OS default application (Word, Excel, etc.). */
+    /** Delegate to the OS default application. */
     | "external"
     /** Unknown extension — fall back to the editor (maybe it's text). */
     | "unknown";
@@ -43,6 +45,8 @@ const IMAGE_EXTS = new Set([
     // OS's "Open with Notepad" from outside the app.
     "svg",
 ]);
+
+const PHOTOCRAFT_EXTS = new Set(["psb"]);
 
 const MARKDOWN_EXTS = new Set(["md", "markdown", "mdx"]);
 
@@ -114,7 +118,9 @@ const TEXT_EXTS = new Set([
 
 const PREVIEW_EXTS = new Set([
     "html", "htm",
+    "psd",
     "pdf",
+    "xls", "xlsx", "xlsm", "xlsb", "ods",
     "doc",
     "docx",
     "mp3", "m4a", "wav", "ogg", "flac", "aac", "opus",
@@ -131,13 +137,10 @@ const EXTERNAL_EXTS = new Set([
     // Microsoft Office
     "doc",
     "docx",
-    "xls",
-    "xlsx",
     "ppt",
     "pptx",
     // OpenDocument
     "odt",
-    "ods",
     "odp",
     // Apple iWork
     "pages",
@@ -183,6 +186,7 @@ export function getFileHandler(
     // (e.g. `.mindzj`) routes to the plugin, even if it would
     // otherwise match one of the built-in categories.
     if (ext && hasPluginView(ext)) return "plugin";
+    if (PHOTOCRAFT_EXTS.has(ext)) return "photocraft";
     if (IMAGE_EXTS.has(ext)) return "image";
     if (TEXT_EXTS.has(ext)) return "editor";
     if (PREVIEW_EXTS.has(ext)) return "preview";

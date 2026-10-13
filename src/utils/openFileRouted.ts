@@ -2,6 +2,7 @@ import { invoke } from "../backend";
 import { vaultStore } from "../stores/vault";
 import { hasPluginViewForExtension } from "../stores/plugins";
 import { getFileHandler } from "./fileTypes";
+import { openImageInPhotoCraft } from "./photoCraft";
 
 /**
  * Unified "open a file in the vault" entry point used by every
@@ -26,9 +27,7 @@ import { getFileHandler } from "./fileTypes";
  *   - `.doc/.docx` → an in-app document placeholder tab so the file
  *     stays in the workspace rather than jumping out to another app.
  *
- *   - Office documents, archives, A/V files → the OS default
- *     application (Word, Excel, Acrobat, the system media player).
- *     We can't render these inside WebView2 usefully.
+ *   - Unsupported Office documents, archives, and media → the OS default app.
  *
  * Errors are logged but NOT thrown, so a single broken file click
  * never crashes the UI — each click site can `void openFileRouted(...)`.
@@ -55,6 +54,11 @@ export async function openFileRouted(relativePath: string): Promise<void> {
             return;
         }
 
+        case "photocraft": {
+            openImageInPhotoCraft(relativePath);
+            return;
+        }
+
         case "preview": {
             try {
                 vaultStore.openPreviewFile(relativePath, "document");
@@ -65,9 +69,7 @@ export async function openFileRouted(relativePath: string): Promise<void> {
         }
 
         case "external": {
-            // Delegate to the OS default app: Word/Writer for .doc,
-            // Excel/Calc for .xlsx/.csv,
-            // system media player for .mp4/.mp3, etc. The Rust
+            // Delegate unsupported formats to the OS default app. The Rust
             // `open_in_default_app` command does `cmd /C start "" …`
             // on Windows, `open` on macOS, `xdg-open` on Linux.
             try {

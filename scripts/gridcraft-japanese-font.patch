@@ -1,0 +1,19 @@
+diff --git a/crates/ui-egui/src/theme.rs b/crates/ui-egui/src/theme.rs
+index 5f2fe4f..a4b2c97 100644
+--- a/crates/ui-egui/src/theme.rs
++++ b/crates/ui-egui/src/theme.rs
+@@ -470,8 +470,12 @@ fn load_fallback(fonts: &mut FontDefinitions, han: HanOrder) -> Vec<String> {
+ }
+ 
+ #[cfg(target_arch = "wasm32")]
+-fn load_fallback(_fonts: &mut FontDefinitions, _han: HanOrder) -> Vec<String> {
+-    Vec::new()
++fn load_fallback(fonts: &mut FontDefinitions, _han: HanOrder) -> Vec<String> {
++    // Browser environments cannot discover fonts installed on the user's machine.
++    const BIZ_UDPGOTHIC: &[u8] = include_bytes!("../assets/fonts/BIZUDPGothic-Regular.ttf");
++    let key = "sys-cjk-han-ja";
++    fonts.font_data.insert(key.into(), Arc::new(FontData::from_static(BIZ_UDPGOTHIC)));
++    vec![key.into()]
+ }
+ 
+ /// Every fallback face we look for, in chain order: `(key, candidate files)`. One file per script

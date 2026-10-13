@@ -1,4 +1,4 @@
-import { Component, Show, createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
+import { Component, For, Show, createEffect, createMemo, createSignal, onCleanup, onMount } from "solid-js";
 import { invoke } from "../../backend";
 import { editorStore } from "../../stores/editor";
 import { vaultStore } from "../../stores/vault";
@@ -8,6 +8,8 @@ import { toVaultAssetUrl } from "../../utils/vaultPaths";
 import { openInternetShortcutExternally, readInternetShortcut } from "../../utils/openFileRouted";
 import { t } from "../../i18n";
 import { editLockStore } from "../../stores/editLock";
+import { openSpreadsheetInGridCraft } from "../../utils/gridCraft";
+import { openImageInPhotoCraft } from "../../utils/photoCraft";
 import type { FileContent } from "../../stores/vault";
 
 export const FilePreview: Component<{
@@ -27,11 +29,19 @@ export const FilePreview: Component<{
     const [sourceBusy, setSourceBusy] = createSignal(false);
     const [sourceLockAcquired, setSourceLockAcquired] = createSignal(false);
     const [previewRevision, setPreviewRevision] = createSignal(0);
-    const previewableMedia = createMemo(() => ["HTML", "HTM", "URL", "PDF", "MP3", "M4A", "WAV", "OGG", "FLAC", "AAC", "OPUS", "MP4", "M4V", "MOV", "AVI", "MKV", "WEBM", "OGV", "GLB", "GLTF"].includes(extension()));
+    const [psdComposite, setPsdComposite] = createSignal<HTMLCanvasElement | null>(null);
+    const [psdPreviewError, setPsdPreviewError] = createSignal("");
+    const [psdPreviewCanvas, setPsdPreviewCanvas] = createSignal<HTMLCanvasElement | null>(null);
+    const [spreadsheetSheets, setSpreadsheetSheets] = createSignal<SpreadsheetSheetPreview[]>([]);
+    const [spreadsheetSheetIndex, setSpreadsheetSheetIndex] = createSignal(0);
+    const [spreadsheetLoading, setSpreadsheetLoading] = createSignal(false);
+    const [spreadsheetError, setSpreadsheetError] = createSignal("");
+    const previewableMedia = createMemo(() => ["HTML", "HTM", "URL", "PDF", "PSD", "XLS", "XLSX", "XLSM", "XLSB", "ODS", "MP3", "M4A", "WAV", "OGG", "FLAC", "AAC", "OPUS", "MP4", "M4V", "MOV", "AVI", "MKV", "WEBM", "OGV", "GLB", "GLTF"].includes(extension()));
     const supportsSourceEdit = createMemo(() => ["HTML", "HTM", "URL"].includes(extension()));
     const isAudio = createMemo(() => ["MP3", "M4A", "WAV", "OGG", "FLAC", "AAC", "OPUS"].includes(extension()));
     const isVideo = createMemo(() => ["MP4", "M4V", "MOV", "AVI", "MKV", "WEBM", "OGV"].includes(extension()));
     const isModel = createMemo(() => ["GLB", "GLTF"].includes(extension()));
+    const isSpreadsheet = createMemo(() => ["XLS", "XLSX", "XLSM", "XLSB", "ODS"].includes(extension()));
     const assetUrl = createMemo(() => {
         const root = vaultStore.vaultInfo()?.path ?? "";
         if (!root) return "";
@@ -57,6 +67,84 @@ export const FilePreview: Component<{
         const query = [`mindzj_preview_policy=2`];
         if (previewRevision() > 0) query.push(`mindzj_preview=${previewRevision()}`);
         return `${url}${url.includes("?") ? "&" : "?"}${query.join("&")}`;
+    });
+
+    createEffect(() => {
+        if (extension() !== "PSD" || !props.active) return;
+        const url = assetUrl();
+        if (!url) return;
+        let cancelled = false;
+        setPsdComposite(null);
+        setPsdPreviewError("");
+        void fetch(url)
+            .then(async (response) => {
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const { readPsd, getCompositeCanvas } = await import("ag-psd");
+                const psd = readPsd(await response.arrayBuffer(), {
+                    skipLayerImageData: true,
+                    skipThumbnail: true,
+                });
+                const composite = psd.canvas || getCompositeCanvas(psd);
+                if (!composite) throw new Error("PSD にプレビュー画像がありません");
+                if (!cancelled) setPsdComposite(composite);
+            })
+            .catch((error) => {
+                console.error("Could not render PSD preview:", error);
+                if (!cancelled) setPsdPreviewError(error instanceof Error ? error.message : String(error));
+            });
+        onCleanup(() => { cancelled = true; });
+    });
+
+    createEffect(() => {
+        const source = psdComposite();
+        const canvas = psdPreviewCanvas();
+        if (!source || !canvas) return;
+        canvas.width = source.width;
+        canvas.height = source.height;
+        canvas.getContext("2d")?.drawImage(source, 0, 0);
+    });
+
+    createEffect(() => {
+        if (!isSpreadsheet() || !props.active) return;
+        const url = assetUrl();
+        if (!url) return;
+        let cancelled = false;
+        setSpreadsheetSheets([]);
+        setSpreadsheetSheetIndex(0);
+        setSpreadsheetError("");
+        setSpreadsheetLoading(true);
+        void (async () => {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const bytes = await response.arrayBuffer();
+            const ExcelJS = await import("exceljs");
+            const workbook = new ExcelJS.Workbook();
+            await workbook.xlsx.load(bytes);
+            const rowLimit = 200;
+            const columnLimit = 40;
+            const previews = workbook.worksheets.map((worksheet) => {
+                const rowCount = Math.min(worksheet.actualRowCount, rowLimit);
+                const columnCount = Math.min(worksheet.actualColumnCount, columnLimit);
+                const rows = Array.from({ length: rowCount }, (_, rowIndex) =>
+                    Array.from({ length: columnCount }, (_, columnIndex) =>
+                        spreadsheetCellText(worksheet.getRow(rowIndex + 1).getCell(columnIndex + 1).value),
+                    ),
+                );
+                return {
+                    name: worksheet.name,
+                    rows,
+                    columnCount,
+                    truncated: worksheet.actualRowCount > rowLimit || worksheet.actualColumnCount > columnLimit,
+                };
+            });
+            if (!cancelled) setSpreadsheetSheets(previews);
+        })()
+            .catch((error) => {
+                console.error("Could not load spreadsheet preview:", error);
+                if (!cancelled) setSpreadsheetError(error instanceof Error ? error.message : String(error));
+            })
+            .finally(() => { if (!cancelled) setSpreadsheetLoading(false); });
+        onCleanup(() => { cancelled = true; });
     });
 
     async function beginSourceEdit() {
@@ -326,6 +414,23 @@ export const FilePreview: Component<{
                                 )}
                             </Show>
                         </Show>
+                        <Show when={extension() === "PSD"}>
+                            <div style={{ flex: "1", display: "flex", "flex-direction": "column", "min-height": "0", background: "var(--mz-bg-primary)" }}>
+                                <div style={{ display: "flex", "align-items": "center", gap: "8px", padding: "8px 12px", "border-bottom": "1px solid var(--mz-border)", background: "var(--mz-bg-secondary)" }}>
+                                    <strong style={{ flex: "1", overflow: "hidden", "text-overflow": "ellipsis", "white-space": "nowrap", color: "var(--mz-text-primary)" }}>{fileName()}</strong>
+                                    <button onClick={() => openImageInPhotoCraft(props.filePath)} style={actionButtonStyle(true)}>{t("livePreview.openInPhotoCraft")}</button>
+                                </div>
+                                <Show when={psdComposite()} fallback={
+                                    <div style={{ flex: "1", display: "grid", "place-items": "center", padding: "24px", color: psdPreviewError() ? "var(--mz-danger, #ef6b73)" : "var(--mz-text-muted)", "text-align": "center" }}>
+                                        {psdPreviewError() ? `${t("filePreview.psdPreviewError")}: ${psdPreviewError()}` : t("common.loading")}
+                                    </div>
+                                }>
+                                    <div style={{ flex: "1", display: "grid", "place-items": "center", padding: "20px", overflow: "auto", background: "radial-gradient(circle at center, color-mix(in srgb, var(--mz-accent) 10%, transparent) 0%, transparent 55%)" }}>
+                                        <canvas ref={setPsdPreviewCanvas} aria-label={fileName()} style={{ "max-width": "100%", "max-height": "100%", "object-fit": "contain", "box-shadow": "0 12px 40px rgba(0,0,0,0.22)" }} />
+                                    </div>
+                                </Show>
+                            </div>
+                        </Show>
                         <Show when={extension() === "HTML" || extension() === "HTM"}>
                             <iframe
                                 src={htmlPreviewUrl()}
@@ -358,6 +463,58 @@ export const FilePreview: Component<{
                         </Show>
                         <Show when={isModel()}>
                             <ModelPreview src={assetUrl()} title={fileName()} />
+                        </Show>
+                        <Show when={isSpreadsheet()}>
+                            <div style={{ flex: "1", display: "flex", "flex-direction": "column", "min-height": "0", color: "var(--mz-text-primary)" }}>
+                                <div style={{ display: "flex", "align-items": "center", gap: "10px", padding: "8px 12px", "border-bottom": "1px solid var(--mz-border)", background: "var(--mz-bg-secondary)" }}>
+                                    <div style={{ flex: "1", display: "flex", "align-items": "center", gap: "6px", "min-width": "0", overflow: "auto" }}>
+                                        <For each={spreadsheetSheets()}>{(sheet, index) => (
+                                            <button
+                                                onClick={() => setSpreadsheetSheetIndex(index())}
+                                                aria-pressed={spreadsheetSheetIndex() === index()}
+                                                style={{ padding: "6px 10px", border: "1px solid var(--mz-border)", "border-radius": "6px", background: spreadsheetSheetIndex() === index() ? "var(--mz-bg-primary)" : "transparent", color: "var(--mz-text-primary)", "white-space": "nowrap", cursor: "pointer" }}
+                                            >{sheet.name}</button>
+                                        )}</For>
+                                    </div>
+                                    <button onClick={() => openSpreadsheetInGridCraft(props.filePath)} style={actionButtonStyle(true)}>{t("gridcraft.editButton")}</button>
+                                </div>
+                                <Show when={spreadsheetLoading()}>
+                                    <div style={{ flex: "1", display: "grid", "place-items": "center", color: "var(--mz-text-muted)" }}>{t("gridcraft.previewLoading")}</div>
+                                </Show>
+                                <Show when={spreadsheetError()}>
+                                    <div style={{ flex: "1", display: "grid", "place-items": "center", padding: "20px", color: "var(--mz-danger, #ef6b73)", "text-align": "center" }}>{t("gridcraft.previewError")}<br />{spreadsheetError()}</div>
+                                </Show>
+                                <Show when={!spreadsheetLoading() && !spreadsheetError() && spreadsheetSheets().length === 0}>
+                                    <div style={{ flex: "1", display: "grid", "place-items": "center", color: "var(--mz-text-muted)" }}>{t("gridcraft.previewEmpty")}</div>
+                                </Show>
+                                <Show when={!spreadsheetLoading() && !spreadsheetError() && spreadsheetSheets()[spreadsheetSheetIndex()]}>
+                                    {(sheet) => (
+                                        <>
+                                            <div style={{ flex: "1", overflow: "auto", "min-height": "0" }}>
+                                                <table style={{ "border-collapse": "collapse", "min-width": "100%", "font-size": "13px", "white-space": "pre-wrap" }}>
+                                                    <thead>
+                                                        <tr>
+                                                            <th style={spreadsheetHeaderStyle(true)}></th>
+                                                            <For each={Array.from({ length: sheet().columnCount }, (_, index) => spreadsheetColumnLabel(index + 1))}>{(label) => <th style={spreadsheetHeaderStyle(false)}>{label}</th>}</For>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <For each={sheet().rows}>{(row, rowIndex) => (
+                                                            <tr>
+                                                                <th style={spreadsheetHeaderStyle(true)}>{rowIndex() + 1}</th>
+                                                                <For each={row}>{(cell) => <td style={spreadsheetCellStyle}>{cell}</td>}</For>
+                                                            </tr>
+                                                        )}</For>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <Show when={sheet().truncated}>
+                                                <div style={{ padding: "6px 12px", color: "var(--mz-text-muted)", "font-size": "var(--mz-font-size-xs)", "border-top": "1px solid var(--mz-border)" }}>{t("gridcraft.previewLimit")}</div>
+                                            </Show>
+                                        </>
+                                    )}
+                                </Show>
+                            </div>
                         </Show>
                         </div>
                         </>
@@ -416,6 +573,65 @@ export const FilePreview: Component<{
         </div>
     );
 };
+
+type SpreadsheetSheetPreview = {
+    name: string;
+    rows: string[][];
+    columnCount: number;
+    truncated: boolean;
+};
+
+function spreadsheetCellText(value: unknown): string {
+    if (value === null || value === undefined) return "";
+    if (value instanceof Date) return value.toLocaleString();
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return String(value);
+    if (Array.isArray(value)) return value.map(spreadsheetCellText).join(", ");
+    if (typeof value === "object") {
+        const cell = value as { text?: unknown; richText?: Array<{ text?: string }>; result?: unknown; formula?: string; error?: string };
+        if (typeof cell.text === "string") return cell.text;
+        if (Array.isArray(cell.richText)) return cell.richText.map((part) => part.text || "").join("");
+        if (cell.result !== undefined) return spreadsheetCellText(cell.result);
+        if (cell.formula) return `=${cell.formula}`;
+        if (cell.error) return cell.error;
+        return "";
+    }
+    return "";
+}
+
+function spreadsheetColumnLabel(columnNumber: number): string {
+    let number = columnNumber;
+    let label = "";
+    while (number > 0) {
+        const remainder = (number - 1) % 26;
+        label = String.fromCharCode(65 + remainder) + label;
+        number = Math.floor((number - 1) / 26);
+    }
+    return label;
+}
+
+const spreadsheetHeaderStyle = (rowHeader: boolean) => ({
+    position: "sticky" as const,
+    top: "0",
+    left: rowHeader ? "0" : undefined,
+    "z-index": rowHeader ? "2" : "1",
+    padding: "6px 10px",
+    border: "1px solid var(--mz-border)",
+    background: "var(--mz-bg-secondary)",
+    color: "var(--mz-text-secondary)",
+    "font-weight": "600",
+    "text-align": rowHeader ? "right" : "center",
+    "min-width": rowHeader ? "42px" : "72px",
+} as const);
+
+const spreadsheetCellStyle = {
+    padding: "5px 9px",
+    border: "1px solid var(--mz-border)",
+    color: "var(--mz-text-primary)",
+    "min-width": "72px",
+    "max-width": "320px",
+    "overflow-wrap": "anywhere",
+    "vertical-align": "top",
+} as const;
 
 const mediaStageStyle = {
     flex: "1",

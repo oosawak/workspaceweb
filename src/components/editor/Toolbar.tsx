@@ -18,10 +18,12 @@ import { ImagePicker } from "./ImagePicker";
 import { requestViewModeChange } from "../../utils/editMode";
 import { openImageInPhotoCraft } from "../../utils/photoCraft";
 import { openPdfInPrintCraft } from "../../utils/printCraft";
+import { openSpreadsheetInGridCraft } from "../../utils/gridCraft";
 import { openVideoInFilmCraft } from "../../utils/filmCraft";
 import { openAudioInAudioMass } from "../../utils/audioMass";
 import { collaborationStore } from "../../stores/collaboration";
 import { isCollaborativeWebNote } from "../../utils/collaboration";
+import { FALLBACK_CRAFT_WEB_VERSIONS, loadCraftWebVersions } from "../../utils/craftVersions";
 
 interface ToolbarButton {
   command: string;
@@ -97,8 +99,10 @@ export const Toolbar: Component = () => {
   const [showImagePicker, setShowImagePicker] = createSignal(false);
   const [showPhotoCraftLicense, setShowPhotoCraftLicense] = createSignal(false);
   const [showPrintCraftLicense, setShowPrintCraftLicense] = createSignal(false);
+  const [showGridCraftLicense, setShowGridCraftLicense] = createSignal(false);
   const [showFilmCraftLicense, setShowFilmCraftLicense] = createSignal(false);
   const [showAudioMassLicense, setShowAudioMassLicense] = createSignal(false);
+  const [craftVersions, setCraftVersions] = createSignal(FALLBACK_CRAFT_WEB_VERSIONS);
   const [overflowIndex, setOverflowIndex] = createSignal<number>(-1);
   const [headingMenuPos, setHeadingMenuPos] = createSignal({ x: 0, y: 0 });
   const [markerMenuPos, setMarkerMenuPos] = createSignal({ x: 0, y: 0 });
@@ -154,9 +158,10 @@ export const Toolbar: Component = () => {
 
   const isImageFile = () => vaultStore.activeFile()?.kind === "image";
   const isPdfFile = () => /\.pdf$/i.test(vaultStore.activeFile()?.path ?? "");
+  const isSpreadsheetFile = () => /\.(xlsx|xlsm|xlsb|xls|ods)$/i.test(vaultStore.activeFile()?.path ?? "");
   const isVideoFile = () => /\.(mp4|mov|m4v|webm|mkv|avi|wmv|mpg|mpeg|mxf|mts|m2ts)$/i.test(vaultStore.activeFile()?.path ?? "");
   const isAudioFile = () => /\.(mp3|wav|ogg|flac|aac|m4a|opus)$/i.test(vaultStore.activeFile()?.path ?? "");
-  const currentViewMode = () => isImageFile() || isPdfFile() || isVideoFile() || isAudioFile()
+  const currentViewMode = () => isImageFile() || isPdfFile() || isSpreadsheetFile() || isVideoFile() || isAudioFile()
     ? "reading"
     : editorStore.getViewModeForFile(vaultStore.activeFile()?.path ?? null);
   const activePath = () => vaultStore.activeFile()?.path ?? null;
@@ -183,14 +188,18 @@ export const Toolbar: Component = () => {
     : isVideoFile()
     ? [
         { mode: "reading" as const, label: t("context.readingView") },
-        { mode: "filmcraft-edit" as const, label: t("filmcraft.editButton") },
-        { mode: "filmcraft-license" as const, label: t("filmcraft.licenseButton") },
       ]
     : isPdfFile()
     ? [
         { mode: "reading" as const, label: t("context.readingView") },
         { mode: "printcraft-edit" as const, label: t("printcraft.editButton") },
         { mode: "printcraft-license" as const, label: t("printcraft.licenseButton") },
+      ]
+    : isSpreadsheetFile()
+    ? [
+        { mode: "reading" as const, label: t("context.readingView") },
+        { mode: "gridcraft-edit" as const, label: t("gridcraft.editButton") },
+        { mode: "gridcraft-license" as const, label: t("gridcraft.licenseButton") },
       ]
     : isImageFile()
     ? [
@@ -204,7 +213,7 @@ export const Toolbar: Component = () => {
         { mode: "source" as const, label: t("context.sourceMode") },
       ]);
   const openPhotoCraftLicense = () => setShowPhotoCraftLicense(true);
-  const selectMode = (mode: "reading" | "live-preview" | "source" | "printcraft-edit" | "filmcraft-edit" | "audiomass-edit") => {
+  const selectMode = (mode: "reading" | "live-preview" | "source" | "printcraft-edit" | "gridcraft-edit" | "filmcraft-edit" | "audiomass-edit") => {
     const path = activePath();
     if (isAudioFile()) {
       if (mode === "audiomass-edit" && path) openAudioInAudioMass(path);
@@ -218,11 +227,15 @@ export const Toolbar: Component = () => {
       if (mode === "printcraft-edit" && path) openPdfInPrintCraft(path);
       return;
     }
+    if (isSpreadsheetFile()) {
+      if (mode === "gridcraft-edit" && path) openSpreadsheetInGridCraft(path);
+      return;
+    }
     if (isImageFile()) {
       if (mode === "live-preview" && path) openImageInPhotoCraft(path);
       return;
     }
-    if (mode === "printcraft-edit" || mode === "filmcraft-edit" || mode === "audiomass-edit") return;
+    if (mode === "printcraft-edit" || mode === "gridcraft-edit" || mode === "filmcraft-edit" || mode === "audiomass-edit") return;
     if (path) void requestViewModeChange(path, mode);
   };
   const saveCurrent = () => {
@@ -259,6 +272,9 @@ export const Toolbar: Component = () => {
   };
 
   onMount(() => {
+    void loadCraftWebVersions().then(setCraftVersions).catch((error) => {
+      console.warn("Could not load the bundled Craft version manifest:", error);
+    });
     requestAnimationFrame(checkOverflow);
     const observer = new ResizeObserver(() => requestAnimationFrame(checkOverflow));
     if (toolbarRef) observer.observe(toolbarRef);
@@ -344,7 +360,7 @@ export const Toolbar: Component = () => {
         "flex-shrink": "0",
       }}
     >
-      <Show when={!isImageFile() && !isPdfFile() && !isAudioFile()}>
+      <Show when={!isImageFile() && !isPdfFile() && !isSpreadsheetFile() && !isAudioFile()}>
         <div
           ref={itemsRef}
           style={{
@@ -479,6 +495,8 @@ export const Toolbar: Component = () => {
               ? showAudioMassLicense()
             : mode === "printcraft-license"
               ? showPrintCraftLicense()
+              : mode === "gridcraft-license"
+                ? showGridCraftLicense()
               : mode === "filmcraft-license"
                 ? showFilmCraftLicense()
                 : currentViewMode() === mode;
@@ -489,6 +507,8 @@ export const Toolbar: Component = () => {
                 ? setShowAudioMassLicense(true)
               : mode === "printcraft-license"
                 ? setShowPrintCraftLicense(true)
+                : mode === "gridcraft-license"
+                  ? setShowGridCraftLicense(true)
                 : mode === "filmcraft-license"
                   ? setShowFilmCraftLicense(true)
                   : selectMode(mode)}
@@ -517,12 +537,40 @@ export const Toolbar: Component = () => {
             <h3 style={{ "margin-bottom": "6px", "font-size": "var(--mz-font-size-md)" }}>{t("printcraft.mindzjChangesTitle")}</h3>
             <p style={{ "line-height": "1.6", color: "var(--mz-text-secondary)" }}>{t("printcraft.mindzjChanges")}</p>
             <div style={{ display: "flex", "flex-wrap": "wrap", gap: "8px", "margin-top": "18px" }}>
-              <a href="https://github.com/storytold/printcraft" target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("printcraft.upstreamLink")}</a>
+              <a href="https://github.com/storytold/pdfcraft" target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("printcraft.upstreamLink")}</a>
               <a href={printCraftLicenseUrl("LICENSE-MIT")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>MIT License</a>
               <a href={printCraftLicenseUrl("LICENSE-APACHE")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>Apache-2.0</a>
               <a href={printCraftLicenseUrl("NOTICE")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>NOTICE</a>
               <a href={printCraftLicenseUrl("ATTRIBUTION.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("printcraft.attributionLink")}</a>
               <a href={printCraftLicenseUrl("OFL-BIZUDPGothic.txt")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("printcraft.japaneseFontLicense")}</a>
+              <a href={printCraftLicenseUrl("CRAFT-FONTS-ATTRIBUTION.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("printcraft.japaneseFontCredits")}</a>
+              <a href={printCraftLicenseUrl("MINDZJ-BUNDLE-NOTICE.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("printcraft.mindzjChangesTitle")}</a>
+              <span style={{ width: "100%", "font-size": "var(--mz-font-size-xs)", color: "var(--mz-text-muted)" }}>PdfCraft Web {craftVersions().pdfcraft.version} · {craftVersions().pdfcraft.commit} · MindZJ host bridge</span>
+            </div>
+          </section>
+        </div>
+      </Show>
+
+      <Show when={showGridCraftLicense()}>
+        <div role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setShowGridCraftLicense(false); }} style={{ position: "fixed", inset: "0", display: "flex", "align-items": "center", "justify-content": "center", padding: "20px", background: "rgba(0,0,0,.58)", "z-index": "20000" }}>
+          <section role="dialog" aria-modal="true" aria-labelledby="gridcraft-license-title" style={{ width: "min(560px, 100%)", padding: "22px", color: "var(--mz-text-primary)", background: "var(--mz-bg-secondary)", border: "1px solid var(--mz-border-strong)", "border-radius": "var(--mz-radius-lg)", "box-shadow": "0 20px 60px rgba(0,0,0,.45)" }}>
+            <div style={{ display: "flex", "align-items": "center", gap: "12px", "margin-bottom": "16px" }}>
+              <h2 id="gridcraft-license-title" style={{ margin: "0", flex: "1", "font-size": "var(--mz-font-size-lg)" }}>{t("gridcraft.licenseTitle")}</h2>
+              <button type="button" title={t("common.close")} aria-label={t("common.close")} onClick={() => setShowGridCraftLicense(false)} style={{ ...iconButtonStyle, border: "1px solid var(--mz-border)", "border-radius": "var(--mz-radius-sm)" }}>×</button>
+            </div>
+            <p style={{ "line-height": "1.6", color: "var(--mz-text-secondary)" }}>{t("gridcraft.licenseSummary")}</p>
+            <h3 style={{ "margin-bottom": "6px", "font-size": "var(--mz-font-size-md)" }}>{t("gridcraft.mindzjChangesTitle")}</h3>
+            <p style={{ "line-height": "1.6", color: "var(--mz-text-secondary)" }}>{t("gridcraft.mindzjChanges")}</p>
+            <div style={{ display: "flex", "flex-wrap": "wrap", gap: "8px", "margin-top": "18px" }}>
+              <a href="https://github.com/storytold/gridcraft" target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("gridcraft.upstreamLink")}</a>
+              <a href={gridCraftLicenseUrl("LICENSE-MIT")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>MIT License</a>
+              <a href={gridCraftLicenseUrl("LICENSE-APACHE")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>Apache-2.0</a>
+              <a href={gridCraftLicenseUrl("NOTICE")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>NOTICE</a>
+              <a href={gridCraftLicenseUrl("ATTRIBUTION.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("gridcraft.attributionLink")}</a>
+              <a href={gridCraftLicenseUrl("MINDZJ-BUNDLE-NOTICE.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("gridcraft.mindzjChangesTitle")}</a>
+              <a href={gridCraftLicenseUrl("OFL-BIZUDPGothic.txt")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("printcraft.japaneseFontLicense")}</a>
+              <a href={gridCraftLicenseUrl("CRAFT-FONTS-ATTRIBUTION.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("printcraft.japaneseFontCredits")}</a>
+              <span style={{ width: "100%", "font-size": "var(--mz-font-size-xs)", color: "var(--mz-text-muted)" }}>GridCraft Web {craftVersions().gridcraft.version} · {craftVersions().gridcraft.commit} · MindZJ bridge + Japanese font</span>
             </div>
           </section>
         </div>
@@ -626,7 +674,7 @@ export const Toolbar: Component = () => {
               {t("photocraft.mindzjChanges")}
             </p>
             <p style={{ "font-size": "var(--mz-font-size-xs)", color: "var(--mz-text-muted)" }}>
-              {t("photocraft.upstreamRevision")}
+              PhotoCraft Web {craftVersions().photocraft.version} · {craftVersions().photocraft.commit} · MindZJ Vault bridge
             </p>
             <div style={{ display: "flex", "flex-wrap": "wrap", gap: "8px", "margin-top": "18px" }}>
               <a href="https://github.com/storytold/photocraft" target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("photocraft.upstreamLink")}</a>
@@ -634,7 +682,8 @@ export const Toolbar: Component = () => {
               <a href={photoCraftLicenseUrl("LICENSE-APACHE")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>Apache-2.0</a>
               <a href={photoCraftLicenseUrl("NOTICE")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>NOTICE</a>
               <a href={photoCraftLicenseUrl("ATTRIBUTION.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("photocraft.attributionLink")}</a>
-              <a href={photoCraftLicenseUrl("assets/fonts/OFL-BIZUDPGothic.txt")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("printcraft.japaneseFontLicense")}</a>
+              <a href={photoCraftLicenseUrl("MINDZJ-BUNDLE-NOTICE.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("photocraft.mindzjChangesTitle")}</a>
+              <a href={photoCraftLicenseUrl("MINDZJ-BUNDLE-NOTICE.md")} target="_blank" rel="noreferrer" style={licenseLinkStyle}>{t("photocraft.mindzjChangesTitle")}</a>
             </div>
           </section>
         </div>
@@ -793,7 +842,12 @@ function photoCraftLicenseUrl(fileName: string): string {
 
 function printCraftLicenseUrl(fileName: string): string {
   const appBase = new URL(import.meta.env.BASE_URL, window.location.origin);
-  return new URL(`printcraft/${fileName}`, appBase).toString();
+  return new URL(`pdfcraft/${fileName}`, appBase).toString();
+}
+
+function gridCraftLicenseUrl(fileName: string): string {
+  const appBase = new URL(import.meta.env.BASE_URL, window.location.origin);
+  return new URL(`gridcraft/${fileName}`, appBase).toString();
 }
 
 function filmCraftLicenseUrl(fileName: string): string {

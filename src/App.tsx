@@ -14,7 +14,7 @@ import { getBackendKind, invoke, isPagesDemo } from "./backend";
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { save as saveDialog } from "@tauri-apps/plugin-dialog";
-import { vaultStore, type FileContent } from "./stores/vault";
+import { vaultStore, type FileContent, type VaultEntry } from "./stores/vault";
 import { editorStore, type ViewMode } from "./stores/editor";
 import { settingsStore, type AiProviderConfig } from "./stores/settings";
 import {
@@ -80,6 +80,7 @@ import { Copy, History, Mic, MicOff, Trash2, Volume2, X } from "lucide-solid";
 import { ScreenshotOverlay } from "./components/screenshot/ScreenshotOverlay";
 import { promptDialog } from "./components/common/ConfirmDialog";
 import { openFileRouted } from "./utils/openFileRouted";
+import { openSpreadsheetInGridCraft } from "./utils/gridCraft";
 import { requestViewModeChange, saveDraftBeforeLeaving } from "./utils/editMode";
 import { editLockStore } from "./stores/editLock";
 import { displayName } from "./utils/displayName";
@@ -102,7 +103,7 @@ type PaneSlot = "primary" | "secondary";
 type EmbeddedEditorSession = {
     url: string;
     fileName: string;
-    editor: "PhotoCraft" | "MindZJ PDF" | "FilmCraft" | "AudioMass";
+    editor: "PhotoCraft" | "PdfCraft" | "GridCraft" | "FilmCraft" | "AudioMass";
     close: () => void;
     connect?: (frame: HTMLIFrameElement) => void;
 };
@@ -403,6 +404,20 @@ const App: Component = () => {
     const [sidebarTab, setSidebarTab] = createSignal<SidebarTab>("files");
     const [embeddedEditorSession, setEmbeddedEditorSession] =
         createSignal<EmbeddedEditorSession | null>(null);
+    function closeEmbeddedEditor() {
+        const session = embeddedEditorSession();
+        if (!session) return;
+        session.close();
+        setEmbeddedEditorSession(null);
+    }
+    let previousActivePath = vaultStore.activeFile()?.path;
+    createEffect(() => {
+        const activePath = vaultStore.activeFile()?.path;
+        if (activePath !== previousActivePath && embeddedEditorSession()) {
+            closeEmbeddedEditor();
+        }
+        previousActivePath = activePath;
+    });
     const [sidebarCollapsed, setSidebarCollapsed] = createSignal(false);
     const [showVaultMenu, setShowVaultMenu] = createSignal(false);
     const [sortMode, setSortMode] = createSignal<SortMode>("custom");
@@ -1058,6 +1073,7 @@ const App: Component = () => {
 
     let tabSelectRequest = 0;
     async function handleTabSelect(path: string) {
+        closeEmbeddedEditor();
         const request = ++tabSelectRequest;
         const currentPath = activePanePath() ?? vaultStore.activeFile()?.path;
         if (currentPath && currentPath !== path && editorStore.isDirtyPath(currentPath)) {
@@ -1072,6 +1088,7 @@ const App: Component = () => {
     }
 
     async function handleSidebarFileClick(path: string) {
+        closeEmbeddedEditor();
         document.dispatchEvent(
             new CustomEvent("mindzj:remember-active-viewport"),
         );
@@ -1490,34 +1507,42 @@ const App: Component = () => {
         const handleOpenPhotoCraft = (event: Event) => {
             const session = (event as CustomEvent<EmbeddedEditorSession>).detail;
             if (!session?.url) return;
-            embeddedEditorSession()?.close();
+            closeEmbeddedEditor();
             setEmbeddedEditorSession(session);
         };
         const handleOpenPrintCraft = (event: Event) => {
             const session = (event as CustomEvent<EmbeddedEditorSession>).detail;
             if (!session?.url) return;
-            embeddedEditorSession()?.close();
+            closeEmbeddedEditor();
+            setEmbeddedEditorSession(session);
+        };
+        const handleOpenGridCraft = (event: Event) => {
+            const session = (event as CustomEvent<EmbeddedEditorSession>).detail;
+            if (!session?.url) return;
+            closeEmbeddedEditor();
             setEmbeddedEditorSession(session);
         };
         const handleOpenFilmCraft = (event: Event) => {
             const session = (event as CustomEvent<EmbeddedEditorSession>).detail;
             if (!session?.url) return;
-            embeddedEditorSession()?.close();
+            closeEmbeddedEditor();
             setEmbeddedEditorSession(session);
         };
         const handleOpenAudioMass = (event: Event) => {
             const session = (event as CustomEvent<EmbeddedEditorSession>).detail;
             if (!session?.url) return;
-            embeddedEditorSession()?.close();
+            closeEmbeddedEditor();
             setEmbeddedEditorSession(session);
         };
         window.addEventListener("mindzj:open-photocraft", handleOpenPhotoCraft);
         window.addEventListener("mindzj:open-printcraft", handleOpenPrintCraft);
+        window.addEventListener("mindzj:open-gridcraft", handleOpenGridCraft);
         window.addEventListener("mindzj:open-filmcraft", handleOpenFilmCraft);
         window.addEventListener("mindzj:open-audiomass", handleOpenAudioMass);
         onCleanup(() => {
             window.removeEventListener("mindzj:open-photocraft", handleOpenPhotoCraft);
             window.removeEventListener("mindzj:open-printcraft", handleOpenPrintCraft);
+            window.removeEventListener("mindzj:open-gridcraft", handleOpenGridCraft);
             window.removeEventListener("mindzj:open-filmcraft", handleOpenFilmCraft);
             window.removeEventListener("mindzj:open-audiomass", handleOpenAudioMass);
             embeddedEditorSession()?.close();
@@ -1534,7 +1559,12 @@ const App: Component = () => {
         document.addEventListener("keydown", handleGlobalKeydown, true);
         document.addEventListener("keyup", handleGlobalKeyup, true);
         const handleShowToast = (event: Event) => {
-            const message = (event as CustomEvent<string>).detail;
+            const detail = (event as CustomEvent<unknown>).detail;
+            const message = typeof detail === "string"
+                ? detail
+                : detail && typeof detail === "object" && "message" in detail && typeof detail.message === "string"
+                    ? detail.message
+                    : null;
             if (message) showShortcutToast(message);
         };
         document.addEventListener("mindzj:show-toast", handleShowToast);
@@ -3645,6 +3675,8 @@ const App: Component = () => {
         setSidebarTabs(tabs);
     }
 
+    const [showCreateMenu, setShowCreateMenu] = createSignal(false);
+
     async function handleNewTab() {
         const n = await promptDialog(
             t("app.noteNamePrompt"),
@@ -3654,6 +3686,82 @@ const App: Component = () => {
         const fileName = n.endsWith(".md") ? n : `${n}.md`;
         await vaultStore.createFile(fileName, "");
         await vaultStore.openFile(fileName);
+    }
+
+    async function createRootFile(name: string, content: string, open = true) {
+        const safeName = name.trim().replace(/[\\/\x00-\x1f]/g, "_");
+        if (!safeName) return;
+        await vaultStore.createFile(safeName, content);
+        if (open) await openFileRouted(safeName);
+        return safeName;
+    }
+
+    async function handleNewTextFile() {
+        const name = await promptDialog(t("create.textNamePrompt"), "script.js");
+        if (!name) return;
+        const normalized = /\.[a-z0-9]+$/i.test(name) ? name : `${name}.txt`;
+        if (!/\.(txt|md|js|mjs|ts|tsx|jsx|json|css|html|csv|xml|yaml|yml|toml|sh)$/i.test(normalized)) {
+            document.dispatchEvent(new CustomEvent("mindzj:show-toast", { detail: t("create.unsupportedTextExtension") }));
+            return;
+        }
+        await createRootFile(normalized, "");
+    }
+
+    async function handleNewHtmlPage() {
+        const name = await promptDialog(t("create.htmlNamePrompt"), "index.html");
+        if (!name) return;
+        const fileName = /\.html?$/i.test(name) ? name : `${name}.html`;
+        const title = fileName.replace(/\.html?$/i, "").replace(/[<>\"&]/g, "");
+        await createRootFile(fileName, `<!doctype html>\n<html lang=\"ja\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>${title}</title>\n</head>\n<body>\n  <h1>${title}</h1>\n</body>\n</html>\n`);
+    }
+
+    async function handleNewUrlShortcut() {
+        const name = await promptDialog(t("create.urlNamePrompt"), "website.url");
+        if (!name) return;
+        const target = await promptDialog(t("create.urlTargetPrompt"), "https://");
+        if (!target) return;
+        try {
+            const parsed = new URL(target.trim());
+            if (parsed.protocol !== "https:" && parsed.protocol !== "http:") throw new Error("unsupported protocol");
+        } catch {
+            document.dispatchEvent(new CustomEvent("mindzj:show-toast", { detail: t("create.invalidUrl") }));
+            return;
+        }
+        const fileName = /\.url$/i.test(name) ? name : `${name}.url`;
+        await createRootFile(fileName, `[InternetShortcut]\nURL=${target.trim()}\n`);
+    }
+
+    async function handleNewSpreadsheet() {
+        const name = await promptDialog(t("create.spreadsheetNamePrompt"), "spreadsheet.xlsx");
+        if (!name) return;
+        const fileName = /\.xlsx$/i.test(name.trim()) ? name.trim() : `${name.trim()}.xlsx`;
+        const safeName = fileName.replace(/[\\/\x00-\x1f]/g, "_");
+        const pathExists = (entries: VaultEntry[]): boolean =>
+            entries.some((entry) => entry.relative_path === safeName || (entry.children ? pathExists(entry.children) : false));
+        if (pathExists(vaultStore.fileTree())) {
+            document.dispatchEvent(new CustomEvent("mindzj:show-toast", { detail: t("create.fileAlreadyExists") }));
+            return;
+        }
+        try {
+            const { Workbook } = await import("exceljs");
+            const workbook = new Workbook();
+            workbook.addWorksheet("Sheet1");
+            const bytes = new Uint8Array(await workbook.xlsx.writeBuffer());
+            let binary = "";
+            for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+                binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+            }
+            await invoke("write_binary_file", { relativePath: safeName, base64Data: btoa(binary) });
+            await vaultStore.refreshFileTree();
+            openSpreadsheetInGridCraft(safeName);
+        } catch (error) {
+            console.error("Failed to create the XLSX spreadsheet:", error);
+            document.dispatchEvent(new CustomEvent("mindzj:show-toast", { detail: t("create.spreadsheetFailed") }));
+        }
+    }
+
+    function handleAddResources() {
+        document.dispatchEvent(new CustomEvent("mindzj:add-resource"));
     }
 
     function toggleAllFolders() {
@@ -3963,12 +4071,43 @@ const App: Component = () => {
                                     }}>
                                     <div
                                         style={{ display: "flex", gap: "2px" }}>
+                                        <div style={{ position: "relative" }}>
+                                            <button
+                                                onClick={() => setShowCreateMenu(!showCreateMenu())}
+                                                title={t("create.menuTitle")}
+                                                style={{
+                                                    width: "28px", height: "28px", display: "flex",
+                                                    "align-items": "center", "justify-content": "center",
+                                                    border: "none", "border-radius": "var(--mz-radius-sm)",
+                                                    background: showCreateMenu() ? "var(--mz-bg-hover)" : "transparent",
+                                                    color: "var(--mz-text-muted)", cursor: "pointer",
+                                                }}>
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                                                    <path d="M12 5v14M5 12h14" />
+                                                </svg>
+                                            </button>
+                                            <Show when={showCreateMenu()}>
+                                                <div style={{ position: "absolute", top: "30px", left: "0", "z-index": "1000", "min-width": "210px", padding: "4px", background: "var(--mz-bg-primary)", border: "1px solid var(--mz-border)", "border-radius": "var(--mz-radius-md)", "box-shadow": "0 8px 24px rgba(0,0,0,.24)" }}>
+                                                    {[
+                                                        { label: t("app.newNote"), action: handleNewTab },
+                                                        { label: t("create.newTextFile"), action: handleNewTextFile },
+                                                        { label: t("create.newHtmlPage"), action: handleNewHtmlPage },
+                                                        { label: t("create.newUrlShortcut"), action: handleNewUrlShortcut },
+                                                        { label: t("create.newSpreadsheet"), action: handleNewSpreadsheet },
+                                                        { label: t("context.addResource"), action: handleAddResources },
+                                                    ].map((item) => (
+                                                        <button
+                                                            onClick={() => { setShowCreateMenu(false); void item.action(); }}
+                                                            style={{ width: "100%", padding: "7px 10px", border: "none", "border-radius": "var(--mz-radius-sm)", background: "transparent", color: "var(--mz-text-primary)", "text-align": "left", cursor: "pointer", "font-size": "13px" }}
+                                                            onMouseEnter={(event) => { event.currentTarget.style.background = "var(--mz-bg-hover)"; }}
+                                                            onMouseLeave={(event) => { event.currentTarget.style.background = "transparent"; }}>
+                                                            {item.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </Show>
+                                        </div>
                                         {[
-                                            {
-                                                title: t("app.newNote"),
-                                                icon: "M12 5v14M5 12h14",
-                                                action: () => handleNewTab(),
-                                            },
                                             {
                                                 title: t("app.newFolder"),
                                                 icon: "M12 10v6M9 13h6M3 7.5A2.5 2.5 0 015.5 5H10l2 2h6.5A2.5 2.5 0 0121 9.5v7a2.5 2.5 0 01-2.5 2.5h-13A2.5 2.5 0 013 16.5z",
@@ -4482,6 +4621,7 @@ const App: Component = () => {
                                     when={
                                         vaultStore.activeFile()?.kind === "image" ||
                                         /\.pdf$/i.test(vaultStore.activeFile()?.path ?? "") ||
+                                        /\.(xlsx|xlsm|xlsb|xls|ods)$/i.test(vaultStore.activeFile()?.path ?? "") ||
                                         /\.(mp4|mov|m4v|webm|mkv|avi|wmv|mpg|mpeg|mxf|mts|m2ts)$/i.test(vaultStore.activeFile()?.path ?? "") ||
                                         /\.(mp3|wav|ogg|flac|aac|m4a|opus)$/i.test(vaultStore.activeFile()?.path ?? "") ||
                                         ((settingsStore.settings()
@@ -4598,10 +4738,7 @@ const App: Component = () => {
                                             type="button"
                                             title={t("common.close")}
                                             aria-label={t("common.close")}
-                                            onClick={() => {
-                                                embeddedEditorSession()?.close();
-                                                setEmbeddedEditorSession(null);
-                                            }}
+                                            onClick={closeEmbeddedEditor}
                                             style={{
                                                 width: "26px",
                                                 height: "26px",

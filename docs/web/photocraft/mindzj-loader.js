@@ -77,25 +77,67 @@
   function interceptSaveDownloads(channel) {
     if (!vaultFilePath || !vaultFileName || !window.HTMLAnchorElement) return;
     const originalClick = HTMLAnchorElement.prototype.click;
-    HTMLAnchorElement.prototype.click = function () {
-      if (this.download !== vaultFileName || !this.href.startsWith("blob:")) {
-        return originalClick.call(this);
-      }
-      const anchor = this;
-      fetch(anchor.href)
-        .then(function (response) { return response.blob(); })
+    const originalCreateObjectURL = URL.createObjectURL.bind(URL);
+    const originalRevokeObjectURL = URL.revokeObjectURL.bind(URL);
+    const objectUrlBlobs = new Map();
+    const retryDownload = new WeakSet();
+    URL.createObjectURL = function (blob) {
+      const url = originalCreateObjectURL(blob);
+      objectUrlBlobs.set(url, blob);
+      return url;
+    };
+    URL.revokeObjectURL = function (url) {
+      objectUrlBlobs.delete(url);
+      originalRevokeObjectURL(url);
+    };
+    const transferDownload = function (anchor) {
+      // Keep a direct reference to generated blobs: PhotoCraft revokes its
+      // object URL immediately after clicking the download link.
+      const savedBlob = objectUrlBlobs.get(anchor.href);
+      const blobPromise = savedBlob
+        ? Promise.resolve(savedBlob)
+        : fetch(anchor.href).then(function (response) {
+          if (!response.ok) throw new Error("HTTP " + response.status);
+          return response.blob();
+        });
+      blobPromise
         .then(function (blob) {
           channel.postMessage({
             type: "saved-file",
-            fileName: anchor.download,
+            fileName: anchor.download || vaultFileName,
             blob,
           });
+          showSaveNotice("Sending " + (anchor.download || vaultFileName) + " to MindZJ…", true);
         })
         .catch(function (error) {
           console.error("Could not transfer the saved file to MindZJ:", error);
+          retryDownload.add(anchor);
           originalClick.call(anchor);
           showSaveNotice("Could not save to the Vault; downloaded a copy instead.", false);
         });
+    };
+    document.addEventListener("click", function (event) {
+      const anchor = event.target && event.target.closest
+        ? event.target.closest("a[download]")
+        : null;
+      if (!anchor || !anchor.href.startsWith("blob:")) return;
+      if (retryDownload.has(anchor)) {
+        retryDownload.delete(anchor);
+        return;
+      }
+      // Route exports back to MindZJ even when PhotoCraft changes the name or
+      // format. The host overwrites same-format edits and stores conversions
+      // beside the source using the exported extension.
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      transferDownload(anchor);
+    }, true);
+    HTMLAnchorElement.prototype.click = function () {
+      if (this.href.startsWith("blob:")) {
+        transferDownload(this);
+        return;
+      }
+      originalClick.call(this);
     };
   }
 

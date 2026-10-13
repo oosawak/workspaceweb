@@ -1,6 +1,6 @@
-import { invoke } from "../backend";
 import { vaultStore } from "../stores/vault";
 import { toVaultAssetUrl } from "./vaultPaths";
+import { saveCraftExport } from "./craftSave";
 
 /** Show the app-wide PhotoCraft web bundle with a Vault image queued for import. */
 export function openImageInPhotoCraft(relativePath: string): void {
@@ -29,26 +29,12 @@ export function openImageInPhotoCraft(relativePath: string): void {
         return;
       }
       if (event.data?.type !== "saved-file" || !(event.data.blob instanceof Blob)) return;
-      if (event.data.fileName !== imageName) {
-        channel?.postMessage({ type: "save-result", ok: false, message: "The exported file name does not match the opened image." });
-        return;
-      }
       void event.data.blob.arrayBuffer()
         .then((buffer) => {
-          const bytes = new Uint8Array(buffer);
-          let binary = "";
-          const chunkSize = 0x8000;
-          for (let offset = 0; offset < bytes.length; offset += chunkSize) {
-            binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
-          }
-          return invoke("write_binary_file", {
-            relativePath,
-            base64Data: btoa(binary),
-          });
+          return saveCraftExport(new Uint8Array(buffer), relativePath, event.data.fileName || imageName);
         })
-        .then(async () => {
-          await vaultStore.refreshFileTree();
-          channel?.postMessage({ type: "save-result", ok: true, fileName: imageName });
+        .then((savedName) => {
+          channel?.postMessage({ type: "save-result", ok: true, fileName: savedName });
         })
         .catch((error) => {
           console.error("Could not save the PhotoCraft image to the Vault:", error);

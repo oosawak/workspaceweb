@@ -1,52 +1,85 @@
-import { invoke } from "../backend";
 import { vaultStore } from "../stores/vault";
 import { toVaultAssetUrl } from "./vaultPaths";
 import { t } from "../i18n";
+import { saveCraftExport } from "./craftSave";
 
-/** Open a Vault PDF in the embedded PrintCraft editor. */
+/** Open a Vault PDF in the embedded PdfCraft editor. */
 export function openPdfInPrintCraft(relativePath: string): void {
   const vault = vaultStore.vaultInfo();
-  const pdfUrl = toVaultAssetUrl(vault?.path ?? "", relativePath);
+  const pdfUrl = new URL(toVaultAssetUrl(vault?.path ?? "", relativePath), window.location.href).toString();
   const fileName = relativePath.split(/[\\/]/).pop() || "document.pdf";
   const appBase = new URL(import.meta.env.BASE_URL, window.location.origin);
-  const url = new URL("printcraft/index.html", appBase);
-  const token = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  url.searchParams.set("file", new URL(pdfUrl, window.location.href).toString());
-  const channel = typeof BroadcastChannel === "undefined"
-    ? undefined
-    : new BroadcastChannel(`mindzj-printcraft:${token}`);
-  if (channel) {
-    url.searchParams.set("mindzj_filename", fileName);
-    url.searchParams.set("mindzj_token", token);
-    channel.onmessage = (event: MessageEvent<{ type?: string; fileName?: string; bytes?: Uint8Array }>) => {
-      const data = event.data;
-      if (data?.type !== "saved-file" || !(data.bytes instanceof Uint8Array)) return;
-      if (data.fileName !== fileName) {
-        channel.postMessage({ type: "save-result", ok: false, message: "The saved PDF name did not match the opened file." });
-        return;
-      }
-      let binary = "";
-      const bytes = data.bytes;
-      for (let offset = 0; offset < bytes.length; offset += 0x8000) {
-        binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
-      }
-      void invoke("write_binary_file", { relativePath, base64Data: btoa(binary) })
-        .then(async () => {
-          await vaultStore.refreshFileTree();
-          document.dispatchEvent(new CustomEvent("mindzj:show-toast", { detail: { message: t("printcraft.saved", { fileName }) } }));
-          channel.postMessage({ type: "save-result", ok: true, fileName });
-        })
-        .catch((error) => {
-          console.error("Could not save the PrintCraft PDF to the Vault:", error);
-          document.dispatchEvent(new CustomEvent("mindzj:show-toast", { detail: { message: t("printcraft.saveFailed", { fileName }) } }));
-          channel.postMessage({ type: "save-result", ok: false, message: String(error) });
-        });
-    };
-  }
+  const url = new URL("pdfcraft/index.html", appBase);
+  url.searchParams.set("host", "parent");
 
-  if (vault?.path) url.searchParams.set("vault_path", vault.path);
-  if (vault?.name) url.searchParams.set("vault_name", vault.name);
+  let frame: HTMLIFrameElement | null = null;
+  let messageHandler: ((event: MessageEvent) => void) | null = null;
+  const close = () => {
+    if (messageHandler) window.removeEventListener("message", messageHandler);
+    frame = null;
+    messageHandler = null;
+  };
+
   window.dispatchEvent(new CustomEvent("mindzj:open-printcraft", {
-    detail: { url: url.toString(), fileName, editor: "MindZJ PDF", close: () => channel?.close() },
+    detail: {
+      url: url.toString(),
+      fileName,
+      editor: "PdfCraft",
+      close,
+      connect: (iframe: HTMLIFrameElement) => {
+        close();
+        frame = iframe;
+        const origin = url.origin;
+        messageHandler = async (event: MessageEvent) => {
+          if (event.origin !== origin || event.source !== frame?.contentWindow) return;
+          const data = event.data as {
+            type?: string;
+            name?: string;
+            saveAs?: boolean;
+            bytes?: ArrayBuffer | Uint8Array;
+            error?: string;
+          };
+
+          if (data?.type === "pdfcraft:ready") {
+            try {
+              const response = await fetch(pdfUrl);
+              if (!response.ok) throw new Error(`HTTP ${response.status}`);
+              const bytes = await response.arrayBuffer();
+              frame?.contentWindow?.postMessage(
+                { type: "pdfcraft:open", name: fileName, bytes },
+                origin,
+                [bytes],
+              );
+            } catch (error) {
+              console.error("Could not load the PDF into PdfCraft:", error);
+              showCraftToast(t("pdfcraft.openFailed", { fileName }));
+            }
+          } else if (data?.type === "pdfcraft:save") {
+            const bytes = toUint8Array(data.bytes);
+            if (!bytes) return;
+            void saveCraftExport(bytes, relativePath, data.name || fileName, !data.saveAs)
+              .then((savedName) => showCraftToast(t("pdfcraft.saved", { fileName: savedName })))
+              .catch((error) => {
+                console.error("Could not save the PdfCraft PDF to the Vault:", error);
+                showCraftToast(t("pdfcraft.saveFailed", { fileName: data.name || fileName }));
+              });
+          } else if (data?.type === "pdfcraft:failed") {
+            console.error("PdfCraft could not start:", data.error);
+            showCraftToast(t("pdfcraft.openFailed", { fileName }));
+          }
+        };
+        window.addEventListener("message", messageHandler);
+      },
+    },
   }));
+}
+
+function toUint8Array(bytes: unknown): Uint8Array | null {
+  if (bytes instanceof Uint8Array) return bytes;
+  if (bytes instanceof ArrayBuffer) return new Uint8Array(bytes);
+  return null;
+}
+
+function showCraftToast(message: string): void {
+  document.dispatchEvent(new CustomEvent("mindzj:show-toast", { detail: { message } }));
 }

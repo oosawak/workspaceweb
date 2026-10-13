@@ -1,0 +1,37 @@
+CACHE MANIFEST
+# v1 - July 26, 2018
+# v2 - May 25, 2020
+# v6 - multitrack sample cancel refresh
+
+/index-cache.html
+/manifest.json
+/ico.png
+/icon.png
+/all.css
+/all.build.js
+/recorder-worklet.js
+/tempo-estimator.js
+/tempo-worker.js
+/wav.js
+/lame.js
+/flac.js
+/libflac.js
+/libflac.wasm
+/lz4-block-codec-wasm.js
+/lz4-block-codec.wasm
+/rnn_denoise.js
+/rnn_denoise.wasm
+/fonts/icomoon.ttf
+/fonts/icomoon.woff
+/eq.html
+/sp.html
+/mix.html
+/test.mp3
+
+
+NETWORK:
+/index-cache.html
+
+# Fallback content
+FALLBACK:
+. /index-cache.html

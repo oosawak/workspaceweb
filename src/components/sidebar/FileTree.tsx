@@ -1237,8 +1237,13 @@ export const FileTree: Component<FileTreeProps> = (props) => {
             const entry = props.entries.find((en) => en.relative_path === active);
             renameEntry(active, entry?.is_dir ?? false);
         };
+        const handleAddResourceEvent = () => addResourcesTo("");
         document.addEventListener("mindzj:rename-active-file", handleRenameEvent);
-        onCleanup(() => document.removeEventListener("mindzj:rename-active-file", handleRenameEvent));
+        document.addEventListener("mindzj:add-resource", handleAddResourceEvent);
+        onCleanup(() => {
+            document.removeEventListener("mindzj:rename-active-file", handleRenameEvent);
+            document.removeEventListener("mindzj:add-resource", handleAddResourceEvent);
+        });
     });
 
     function showContextForFile(e: MouseEvent, path: string, isDir: boolean) {

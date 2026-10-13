@@ -25,6 +25,7 @@ Pages 版では、サンプル Vault のノートやリソースを閲覧でき�
 - 画像、PDF、音声、動画、HTML、3D データなどのリソース管理
 - `.url` ファイルのリンクをアプリ内で表示（Ctrl/Cmd を押しながらクリックすると外部ブラウザーで開く）
 - 画像の表示と PhotoCraft による編集
+- PDFのPdfCraft編集、表計算ファイルのGridCraft編集とVaultへの保存
 - 音声・動画・3D データのプレビュー
 - 複数端末からサーバー上の同じ Vault を利用（Web サーバー版）
 - Web サーバー版での Markdown ノート共同編集と自動保存
@@ -86,6 +87,7 @@ Ubuntu で HTTPS、認証、systemd を設定して運用する手順は、[Web 
 
 - [MindZJ の日本語 README](docs/README_JA.md)
 - [MindZJWeb の詳細](docs/mindzjweb.md)
+- [PhotoCraft・PdfCraft・GridCraftの更新手順](docs/CRAFT_WEB_UPDATES_JA.md)
 - [Ubuntu サーバーへのデプロイ手順](docs/mindzjweb/WEB_SERVER_DEPLOYMENT_JA.md)
 - [Google Group 対応 MindZJ の企業利用検討資料](docs/mindzjweb/MINDZJ_GOOGLE_GROUP_BUSINESS_PROPOSAL_JA.md)
 
@@ -100,8 +102,4 @@ HTTPS、認証、ファイアウォール、バックアップを設定してく
 MindZJWeb 本体は AGPL-3.0-or-later で提供しています（別途商用ライセンスを取得した場合を除きます）。
 Web サービスとして運用する場合も、AGPL の条件に従ってください。
 
-画像編集機能に同梱している PhotoCraft は、上流の MIT License または Apache-2.0 を選択して
-利用できる別コンポーネントです。MindZJWeb 本体のライセンスによって PhotoCraft のライセンスや
-著作権表示が置き換わることはありません。PhotoCraft の変更内容、ライセンス文書、NOTICE、
-第三者素材の帰属情報は [`public/photocraft/`](public/photocraft/) にあります。アプリ内の
-「ライセンス」画面からも確認できます。
+PhotoCraft、PdfCraft、GridCraftには、それぞれの上流ライセンスと著作権表示が適用されます。上流ライセンス、NOTICE、素材の帰属情報、MindZJの連携内容は `public/<craft>/` と `docs/web/<craft>/` に置いてあり、アプリ内の「ライセンス」画面からも確認できます。
