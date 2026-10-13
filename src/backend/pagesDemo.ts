@@ -7,13 +7,21 @@ const settingsKey = "mindzj-pages-demo-settings-v1";
 const workspaceKey = "mindzj-pages-demo-workspace-v1";
 const base = import.meta.env.BASE_URL;
 const introPaths: Record<string, string> = {
-  "zh-CN": "MindZJWeb-zh-CN.md",
-  en: "MindZJWeb-en.md",
-  ja: "MindZJWeb-ja.md",
-  fr: "MindZJWeb-fr.md",
-  de: "MindZJWeb-de.md",
-  es: "MindZJWeb-es.md",
+  "zh-CN": "WorkspaceWeb-zh-CN.md",
+  en: "WorkspaceWeb-en.md",
+  ja: "WorkspaceWeb-ja.md",
+  fr: "WorkspaceWeb-fr.md",
+  de: "WorkspaceWeb-de.md",
+  es: "WorkspaceWeb-es.md",
 };
+const legacyIntroPaths = new Set([
+  "MindZJWeb-zh-CN.md",
+  "MindZJWeb-en.md",
+  "MindZJWeb-ja.md",
+  "MindZJWeb-fr.md",
+  "MindZJWeb-de.md",
+  "MindZJWeb-es.md",
+]);
 
 let manifestPromise: Promise<Manifest> | undefined;
 let activeVault = "Samples";
@@ -177,13 +185,11 @@ export class PagesDemoBackend implements MindZjBackend {
           sidebar_tab_order: [], file_scroll_positions: {}, file_top_lines: {},
           file_view_modes: {}, file_last_non_reading_view_modes: {},
         };
-        // Replace the seeded Unreal guide when restoring an older Pages-demo workspace.
-        const isIntro = (path: string) => path === previousDefault || introSet.has(path);
-        if (isIntro(workspace.active_file) || isIntro(workspace.primary_pane_path)) {
-          workspace.open_files = (workspace.open_files || []).map((path: string) => isIntro(path) ? intro : path);
-          workspace.active_file = isIntro(workspace.active_file) ? intro : workspace.active_file;
-          workspace.primary_pane_path = isIntro(workspace.primary_pane_path) ? intro : workspace.primary_pane_path;
-        }
+        // Replace seeded intro files when restoring an older Pages-demo workspace.
+        const isIntro = (path: string) => path === previousDefault || introSet.has(path) || legacyIntroPaths.has(path);
+        workspace.open_files = (workspace.open_files || []).map((path: string) => isIntro(path) ? intro : path);
+        workspace.active_file = isIntro(workspace.active_file) ? intro : workspace.active_file;
+        workspace.primary_pane_path = isIntro(workspace.primary_pane_path) ? intro : workspace.primary_pane_path;
         result = workspace;
         break;
       }

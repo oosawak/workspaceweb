@@ -93,30 +93,6 @@
       "title": "Lyre3 Games"
     },
     {
-      "path": "Samples/MindZJWeb-de.md",
-      "title": "Über WorkspaceWeb"
-    },
-    {
-      "path": "Samples/MindZJWeb-en.md",
-      "title": "About WorkspaceWeb"
-    },
-    {
-      "path": "Samples/MindZJWeb-es.md",
-      "title": "Acerca de WorkspaceWeb"
-    },
-    {
-      "path": "Samples/MindZJWeb-fr.md",
-      "title": "À propos de WorkspaceWeb"
-    },
-    {
-      "path": "Samples/MindZJWeb-ja.md",
-      "title": "Lyre3 Games について"
-    },
-    {
-      "path": "Samples/MindZJWeb-zh-CN.md",
-      "title": "关于 WorkspaceWeb"
-    },
-    {
       "path": "Samples/Sample-en/Education and Research/Lesson Plan.md",
       "title": "Education and Research: Local Water Study"
     },
@@ -231,6 +207,30 @@
     {
       "path": "Samples/Sample.md",
       "title": "Unity Web API サーバー構築資料 — Rust版"
+    },
+    {
+      "path": "Samples/WorkspaceWeb-de.md",
+      "title": "Über WorkspaceWeb"
+    },
+    {
+      "path": "Samples/WorkspaceWeb-en.md",
+      "title": "About WorkspaceWeb"
+    },
+    {
+      "path": "Samples/WorkspaceWeb-es.md",
+      "title": "Acerca de WorkspaceWeb"
+    },
+    {
+      "path": "Samples/WorkspaceWeb-fr.md",
+      "title": "À propos de WorkspaceWeb"
+    },
+    {
+      "path": "Samples/WorkspaceWeb-ja.md",
+      "title": "Lyre3 Games について"
+    },
+    {
+      "path": "Samples/WorkspaceWeb-zh-CN.md",
+      "title": "关于 WorkspaceWeb"
     },
     {
       "path": "test/diary/2026/10/2026-10-01_minutes_ｘｘｘ_ｘｘｘ.md",
@@ -1468,12 +1468,6 @@
     "Samples/Lyre3 Games(Web Game・Application)/vrm-editor.url",
     "Samples/Lyre3 Games(Web Game・Application)/zany-shell.png",
     "Samples/Lyre3 Games(Web Game・Application)/置賜雪合戦.url",
-    "Samples/MindZJWeb-de.md",
-    "Samples/MindZJWeb-en.md",
-    "Samples/MindZJWeb-es.md",
-    "Samples/MindZJWeb-fr.md",
-    "Samples/MindZJWeb-ja.md",
-    "Samples/MindZJWeb-zh-CN.md",
     "Samples/Sample_共同編集.mp4",
     "Samples/Sample-en/Education and Research/Lesson Plan.md",
     "Samples/Sample-en/Education and Research/Research Notes.md",
@@ -1516,6 +1510,12 @@
     "Samples/Sample2.psd",
     "Samples/spreadsheet.csv",
     "Samples/spreadsheet.xlsx",
+    "Samples/WorkspaceWeb-de.md",
+    "Samples/WorkspaceWeb-en.md",
+    "Samples/WorkspaceWeb-es.md",
+    "Samples/WorkspaceWeb-fr.md",
+    "Samples/WorkspaceWeb-ja.md",
+    "Samples/WorkspaceWeb-zh-CN.md",
     "test/diary/2026/10/2026-10-01_minutes_ｘｘｘ_ｘｘｘ.md",
     "test/diary/2026/10/2026-10-01_minutes_適当なゲームの打ち合わせ_大澤公志郎.md",
     "test/diary/2026/10/2026-10-01_report_ｘｘｘゲームの作業_大澤公志郎.md",
