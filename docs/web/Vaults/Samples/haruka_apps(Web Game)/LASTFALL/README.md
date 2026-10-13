@@ -17,8 +17,8 @@
 
 ## 🎮 すぐに遊ぶ (Play Online)
 
-> 🕹️ **ブラウザですぐにプレイ:**  
-> **👉 [https://harukaappscreate.github.io/LASTFALL/](https://harukaappscreate.github.io/LASTFALL/)**  
+> 🕹️ **ブラウザですぐにプレイ:**
+> **👉 [https://harukaappscreate.github.io/LASTFALL/](https://harukaappscreate.github.io/LASTFALL/)**
 > *(PCの Chrome / Edge / Arc、スマートフォン・タブレットのモダンブラウザ向け。モバイルのゲームプレイは横向き)*
 
 ### 1. ローカルで遊ぶ

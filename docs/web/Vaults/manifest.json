@@ -1,16 +1,44 @@
 {
   "notes": [
     {
-      "path": "AAA/a.md",
+      "path": "a/a.md",
       "title": "a"
     },
     {
-      "path": "AAA/b.md",
+      "path": "a/b.md",
       "title": "b"
+    },
+    {
+      "path": "a/ゲーム制作/大切な貴方へ花束を/仕様書.md",
+      "title": "「大切な貴方へ花束を」Unityオンラインゲーム仕様書 v0.1"
+    },
+    {
+      "path": "game/ゲーム制作/大切な貴方へ花束を/仕様書_1005.md",
+      "title": "「大切な貴方へ花束を」Unityオンラインゲーム仕様書 v0.1"
+    },
+    {
+      "path": "game/ゲーム制作/大切な貴方へ花束を/仕様書.md",
+      "title": "「大切な貴方へ花束を」Unityオンラインゲーム仕様書 v0.1"
     },
     {
       "path": "oosawak/New note.md",
       "title": "New note"
+    },
+    {
+      "path": "oosawak/photocraft/HOSTING.md",
+      "title": "Hosting PhotoCraft for the web"
+    },
+    {
+      "path": "oosawak/photocraft/README.md",
+      "title": "Headless: open, edit, save"
+    },
+    {
+      "path": "oosawak/ゲーム制作/大切な貴方へ花束を/仕様書.md",
+      "title": "「大切な貴方へ花束を」Unityオンラインゲーム仕様書 v0.1"
+    },
+    {
+      "path": "Samples/AI/qwin3.80flash-next-iq3_s/Strata.md",
+      "title": "Strata"
     },
     {
       "path": "Samples/diary/2026/10/2026-10-01_minutes_ｘｘｘ_ｘｘｘ.md",
@@ -203,12 +231,97 @@
     {
       "path": "Samples/Sample.md",
       "title": "Unity Web API サーバー構築資料 — Rust版"
+    },
+    {
+      "path": "test/diary/2026/10/2026-10-01_minutes_ｘｘｘ_ｘｘｘ.md",
+      "title": "ｘｘｘ"
+    },
+    {
+      "path": "test/diary/2026/10/2026-10-01_minutes_適当なゲームの打ち合わせ_大澤公志郎.md",
+      "title": "適当なゲームの打ち合わせ"
+    },
+    {
+      "path": "test/diary/2026/10/2026-10-01_report_ｘｘｘゲームの作業_大澤公志郎.md",
+      "title": "ｘｘｘゲームの作業"
+    },
+    {
+      "path": "test/diary/2026/10/2026-10-01_report_適当なゲームの打ち合わせ_大澤公志郎.md",
+      "title": "適当なゲームの打ち合わせ"
+    },
+    {
+      "path": "test/ゲーム制作/ARISA-Quest/仕様書/Arisa-Quest.md",
+      "title": "Arisa-Quest"
+    },
+    {
+      "path": "test/ゲーム制作/REISRAND/REISRAND_開発参加ガイド.md",
+      "title": "REISRAND 開発参加ガイド"
+    },
+    {
+      "path": "test/ゲーム制作/REISRAND/ゲームの概要.md",
+      "title": "ゲームの概要"
+    },
+    {
+      "path": "test/ゲーム制作/大切な貴方へ花束を/サーバー関連/Python版.md",
+      "title": "Unity Web API サーバー構築資料 — Python版"
+    },
+    {
+      "path": "test/ゲーム制作/大切な貴方へ花束を/サーバー関連/Sample.md",
+      "title": "Unity Web API サーバー構築資料 — Rust版"
+    },
+    {
+      "path": "test/ゲーム制作/大切な貴方へ花束を/仕様書_1005.md",
+      "title": "「大切な貴方へ花束を」Unityオンラインゲーム仕様書 v0.1"
+    },
+    {
+      "path": "test/ゲーム制作/大切な貴方へ花束を/仕様書.md",
+      "title": "「大切な貴方へ花束を」Unityオンラインゲーム仕様書 v0.1"
+    },
+    {
+      "path": "test/ドキュメント/教科書/３Dアセット制作チュートリアル.md",
+      "title": "３Dアセット制作チュートリアル"
+    },
+    {
+      "path": "test/ドキュメント/教科書/Unity入門.md",
+      "title": "Unity 超入門ガイド"
+    },
+    {
+      "path": "test/ドキュメント/教科書/UnrealEngine入門.md",
+      "title": "Unreal Engine 超入門ガイド"
     }
   ],
   "files": [
-    "AAA/a.md",
-    "AAA/b.md",
+    "a/a.md",
+    "a/b.md",
+    "a/ゲーム制作/大切な貴方へ花束を/仕様書.md",
+    "game/ゲーム制作/大切な貴方へ花束を/仕様書_1005.md",
+    "game/ゲーム制作/大切な貴方へ花束を/仕様書.md",
     "oosawak/New note.md",
+    "oosawak/photocraft/_headers",
+    "oosawak/photocraft/HOSTING.md",
+    "oosawak/photocraft/index.html",
+    "oosawak/photocraft/LICENSE-APACHE",
+    "oosawak/photocraft/LICENSE-MIT",
+    "oosawak/photocraft/photocraft-web-b33881c18c5db349_bg.wasm",
+    "oosawak/photocraft/photocraft-web-b33881c18c5db349.js",
+    "oosawak/photocraft/README.md",
+    "oosawak/ゲーム制作/youkaiborntest.png",
+    "oosawak/ゲーム制作/大切な貴方へ花束を/仕様書.md",
+    "Samples/AI/notebooklm/Arcadia_Music_Forge_Backend_Blueprint.pdf",
+    "Samples/AI/notebooklm/Arcadia_Music_Forge.pdf",
+    "Samples/AI/notebooklm/From_Symbol_to_Platform.pdf",
+    "Samples/AI/notebooklm/OpenGame_Prompt_to_Arcade.pdf",
+    "Samples/AI/notebooklm/Project_Memory_Platform_Overview.pdf",
+    "Samples/AI/notebooklm/Unity世界の解体新書.pdf",
+    "Samples/AI/notebooklm/ゲームコンテスト攻略ガイド.png",
+    "Samples/AI/prompt/797754712_28283736051280270_7576952210382308325_n.jpg",
+    "Samples/AI/prompt/799264769_28283736391280236_7834807095377703458_n.jpg",
+    "Samples/AI/prompt/800001250_28283809774606231_3865561524679671422_n.jpg",
+    "Samples/AI/qwin3.80flash-next-iq3_s/assets/001.png",
+    "Samples/AI/qwin3.80flash-next-iq3_s/assets/002.png",
+    "Samples/AI/qwin3.80flash-next-iq3_s/assets/003.png",
+    "Samples/AI/qwin3.80flash-next-iq3_s/neonrunner.html",
+    "Samples/AI/qwin3.80flash-next-iq3_s/sonson.html",
+    "Samples/AI/qwin3.80flash-next-iq3_s/Strata.md",
     "Samples/diary/2026/10/2026-10-01_minutes_ｘｘｘ_ｘｘｘ.md",
     "Samples/diary/2026/10/2026-10-01_minutes_適当なゲームの打ち合わせ_大澤公志郎.md",
     "Samples/diary/2026/10/2026-10-01_report_ｘｘｘゲームの作業_大澤公志郎.md",
@@ -1349,9 +1462,11 @@
     "Samples/Lyre3 Games(Web Game・Application)/Lyre3-Chat.url",
     "Samples/Lyre3 Games(Web Game・Application)/Lyre3GamesCard.jpg",
     "Samples/Lyre3 Games(Web Game・Application)/PUZZLEBOX.html",
+    "Samples/Lyre3 Games(Web Game・Application)/ROBLOX_HAALAND.jpg",
     "Samples/Lyre3 Games(Web Game・Application)/SeForge/index.html",
     "Samples/Lyre3 Games(Web Game・Application)/SeForge/index2.html",
     "Samples/Lyre3 Games(Web Game・Application)/vrm-editor.url",
+    "Samples/Lyre3 Games(Web Game・Application)/zany-shell.png",
     "Samples/Lyre3 Games(Web Game・Application)/置賜雪合戦.url",
     "Samples/MindZJWeb-de.md",
     "Samples/MindZJWeb-en.md",
@@ -1397,6 +1512,36 @@
     "Samples/Sample.png",
     "Samples/Sample.wav",
     "Samples/Sample.webp",
-    "Samples/Sample2.png"
+    "Samples/Sample2.png",
+    "Samples/Sample2.psd",
+    "Samples/spreadsheet.csv",
+    "Samples/spreadsheet.xlsx",
+    "test/diary/2026/10/2026-10-01_minutes_ｘｘｘ_ｘｘｘ.md",
+    "test/diary/2026/10/2026-10-01_minutes_適当なゲームの打ち合わせ_大澤公志郎.md",
+    "test/diary/2026/10/2026-10-01_report_ｘｘｘゲームの作業_大澤公志郎.md",
+    "test/diary/2026/10/2026-10-01_report_適当なゲームの打ち合わせ_大澤公志郎.md",
+    "test/ゲーム制作/ARISA-Quest/Arcadia_Music_Forge.pdf",
+    "test/ゲーム制作/ARISA-Quest/リソース/３ｄ/Untitled.glb",
+    "test/ゲーム制作/ARISA-Quest/リソース/音楽/曲 1.wav",
+    "test/ゲーム制作/ARISA-Quest/リソース/画像/Image_1.jpg",
+    "test/ゲーム制作/ARISA-Quest/仕様書/arisa-character-design.png",
+    "test/ゲーム制作/ARISA-Quest/仕様書/Arisa-Quest.md",
+    "test/ゲーム制作/REISRAND/REISRAND_開発参加ガイド.md",
+    "test/ゲーム制作/REISRAND/REISRAND_開発参加ガイド.pdf",
+    "test/ゲーム制作/REISRAND/ゲームの概要.md",
+    "test/ゲーム制作/REISRAND/リソース/スクリーンショット/3Dソフト基本操作＆モデリング入門.png",
+    "test/ゲーム制作/Webゲーム/donkey_kong_arcade.html",
+    "test/ゲーム制作/大切な貴方へ花束を/サーバー関連/Python版.md",
+    "test/ゲーム制作/大切な貴方へ花束を/サーバー関連/Sample.md",
+    "test/ゲーム制作/大切な貴方へ花束を/仕様書_1005.md",
+    "test/ゲーム制作/大切な貴方へ花束を/仕様書.md",
+    "test/ゲーム制作/大切な貴方へ花束を/資料/ルールブック1005.pdf",
+    "test/ゲーム制作/大切な貴方へ花束を/資料/企画書1005.pdf",
+    "test/ドキュメント/教科書/３Dアセット制作チュートリアル.md",
+    "test/ドキュメント/教科書/Blender_5.0_First_Steps.pdf",
+    "test/ドキュメント/教科書/Unity世界の解体新書.pdf",
+    "test/ドキュメント/教科書/Unity入門.md",
+    "test/ドキュメント/教科書/UnrealEngine入門.md",
+    "test/ドキュメント/教科書/ゲーム開発エディタとキャラ移動ガイド.png"
   ]
 }

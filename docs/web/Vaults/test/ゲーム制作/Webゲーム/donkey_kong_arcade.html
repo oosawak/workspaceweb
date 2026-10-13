@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Donkey Kong Arcade Classic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #050508;
+            color: #fff;
+            font-family: 'Press Start 2P', monospace, sans-serif;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow: hidden;
+        }
+        canvas {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            border: 4px solid #333;
+            box-shadow: 0 0 25px rgba(230, 0, 0, 0.4);
+        }
+        .arcade-btn {
+            background: linear-gradient(145deg, #e60000, #990000);
+            box-shadow: inset 0 2px 3px rgba(255,255,255,0.4), 0 4px 0 #550000;
+        }
+        .arcade-btn:active {
+            transform: translateY(3px);
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), 0 1px 0 #550000;
+        }
+        .dpad-btn {
+            background: linear-gradient(145deg, #333, #111);
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.2), 0 3px 0 #000;
+        }
+        .dpad-btn:active {
+            transform: translateY(2px);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 1px 0 #000;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-2 select-none">
+
+    <div class="w-full max-w-2xl flex flex-col items-center">
+        <!-- Arcade Title Header -->
+        <div class="w-full bg-black border-2 border-red-600 rounded-t-lg p-2 text-center mb-1 flex justify-between items-center px-4">
+            <span class="text-red-500 text-xs sm:text-sm animate-pulse">25m STAGE</span>
+            <h1 class="text-yellow-400 text-sm sm:text-lg tracking-widest font-bold">DONKEY KONG</h1>
+            <span class="text-cyan-400 text-xs sm:text-sm">NES-1983</span>
+        </div>
+
+        <!-- Canvas Game Container -->
+        <div class="relative w-full flex justify-center items-center bg-black">
+            <canvas id="gameCanvas" width="448" height="512" class="max-w-full h-auto rounded bg-black"></canvas>
+
+            <!-- Overlay Screen -->
+            <div id="overlay" class="absolute inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-center p-4 text-center z-10">
+                <h2 id="overlayTitle" class="text-red-600 text-xl sm:text-3xl font-bold mb-4 animate-bounce">DONKEY KONG</h2>
+                <p id="overlayMessage" class="text-white text-xs sm:text-sm mb-6 leading-relaxed">HELP MARIO RESCUE PAULINE!</p>
+                <button id="startBtn" class="arcade-btn text-white px-6 py-3 rounded-md text-sm font-bold tracking-wider cursor-pointer border border-red-300">
+                    INSERT COIN / START
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Controls -->
+        <div id="mobileControls" class="w-full max-w-md mt-3 grid grid-cols-2 gap-4 sm:hidden">
+            <div class="grid grid-cols-3 gap-1 w-36 h-36 mx-auto">
+                <div></div>
+                <button id="btnUp" class="dpad-btn text-white rounded font-bold flex items-center justify-center text-lg">▲</button>
+                <div></div>
+                <button id="btnLeft" class="dpad-btn text-white rounded font-bold flex items-center justify-center text-lg">◀</button>
+                <div class="bg-zinc-800 rounded flex items-center justify-center"><div class="w-3 h-3 rounded-full bg-zinc-600"></div></div>
+                <button id="btnRight" class="dpad-btn text-white rounded font-bold flex items-center justify-center text-lg">▶</button>
+                <div></div>
+                <button id="btnDown" class="dpad-btn text-white rounded font-bold flex items-center justify-center text-lg">▼</button>
+                <div></div>
+            </div>
+            <div class="flex items-center justify-center">
+                <button id="btnJump" class="arcade-btn text-white rounded-full w-24 h-24 font-bold text-sm tracking-wider flex items-center justify-center border-2 border-red-400">
+                    JUMP
+                </button>
+            </div>
+        </div>
+
+        <div class="text-zinc-500 text-xs mt-2 hidden sm:block">
+            Controls: Arrow Keys / WASD to move & climb | SPACEBAR to Jump
+        </div>
+    </div>
+
+    <script>
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (this.ctx && this.ctx.state === 'suspended') {
+                    this.ctx.resume();
+                }
+            }
+
+            playJump() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(160, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(580, this.ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            }
+
+            playSmash() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(450, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(70, this.ctx.currentTime + 0.25);
+                gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.25);
+            }
+
+            playStomp() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(130, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.08);
+            }
+
+            playWin() {
+                if (!this.ctx) return;
+                const notes = [261.63, 329.63, 392.00, 523.25, 659.25];
+                notes.forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'square';
+                    osc.frequency.value = freq;
+                    gain.gain.setValueAtTime(0.12, this.ctx.currentTime + idx * 0.1);
+                    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + idx * 0.1 + 0.12);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(this.ctx.currentTime + idx * 0.1);
+                    osc.stop(this.ctx.currentTime + idx * 0.1 + 0.12);
+                });
+            }
+
+            playDead() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(380, this.ctx.currentTime);
+                osc.frequency.linearRampToValueAtTime(50, this.ctx.currentTime + 0.8);
+                gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.8);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.8);
+            }
+        }
+
+        const sfx = new SoundFX();
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const CANVAS_WIDTH = 448;
+        const CANVAS_HEIGHT = 512;
+
+        let score = 0;
+        let highScore = 7600;
+        let lives = 3;
+        let stageLevel = 1;
+        let gameState = 'START'; // 'START', 'PLAYING', 'DYING', 'GAMEOVER', 'WIN'
+        let spawnTimer = 0;
+        let deathTimer = 0;
+        let animationFrameId = null;
+
+        const keys = { left: false, right: false, up: false, down: false, jump: false };
+
+        // Authentic Zigzag Girder Setup
+        const girders = [
+            { x1: 180, y1: 72, x2: 260, y2: 72, level: 7 },
+            { x1: 20, y1: 120, x2: 170, y2: 120, level: 6 },
+            { x1: 170, y1: 120, x2: 410, y2: 140, level: 6 },
+            { x1: 30, y1: 210, x2: 420, y2: 180, level: 5 },
+            { x1: 20, y1: 265, x2: 410, y2: 290, level: 4 },
+            { x1: 30, y1: 360, x2: 420, y2: 330, level: 3 },
+            { x1: 20, y1: 430, x2: 410, y2: 450, level: 2 },
+            { x1: 10, y1: 490, x2: 438, y2: 490, level: 1 }
+        ];
+
+        const ladders = [
+            { x: 235, y1: 72, y2: 120 },
+            { x: 320, y1: 133, y2: 188 },
+            { x: 100, y1: 120, y2: 205 },
+            { x: 80, y1: 206, y2: 265 },
+            { x: 260, y1: 191, y2: 278 },
+            { x: 160, y1: 276, y2: 351 },
+            { x: 370, y1: 287, y2: 334 },
+            { x: 90, y1: 355, y2: 430 },
+            { x: 270, y1: 341, y2: 442 },
+            { x: 380, y1: 448, y2: 490 },
+            { x: 180, y1: 438, y2: 490 }
+        ];
+
+        let hammer = { x: 50, y: 320, active: true, width: 16, height: 16 };
+        let oilBarrel = { x: 30, y: 450, width: 28, height: 40 };
+
+        class Player {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = 60;
+                this.y = 460;
+                this.width = 16;
+                this.height = 20;
+                this.vx = 0;
+                this.vy = 0;
+                this.speed = 2.2;
+                this.jumpStrength = -6.5;
+                this.gravity = 0.38;
+                this.isGrounded = false;
+                this.isClimbing = false;
+                this.facing = 'right';
+                this.animFrame = 0;
+                this.hasHammer = false;
+                this.hammerTimer = 0;
+                this.invulnerableTimer = 120; // Invulnerability frames on respawn
+                this.deathRotation = 0;
+            }
+
+            update() {
+                if (gameState === 'DYING') {
+                    this.deathRotation += 0.2;
+                    this.y += 0.5;
+                    return;
+                }
+
+                if (this.invulnerableTimer > 0) {
+                    this.invulnerableTimer--;
+                }
+
+                if (this.hasHammer) {
+                    this.hammerTimer--;
+                    if (this.hammerTimer <= 0) this.hasHammer = false;
+                }
+
+                let currentLadder = ladders.find(l =>
+                    Math.abs((this.x + this.width / 2) - l.x) < 10 &&
+                    this.y + this.height >= l.y1 - 4 &&
+                    this.y <= l.y2 + 4
+                );
+
+                if (currentLadder && (keys.up || keys.down) && !this.hasHammer) {
+                    this.isClimbing = true;
+                    this.vx = 0;
+                }
+
+                if (this.isClimbing) {
+                    this.vy = 0;
+                    if (keys.up) this.vy = -this.speed * 0.85;
+                    else if (keys.down) this.vy = this.speed * 0.85;
+
+                    if (currentLadder) this.x = currentLadder.x - this.width / 2;
+                    this.y += this.vy;
+
+                    if (currentLadder && (this.y + this.height < currentLadder.y1 || this.y > currentLadder.y2)) {
+                        this.isClimbing = false;
+                    }
+                } else {
+                    if (keys.left) {
+                        this.vx = -this.speed;
+                        this.facing = 'left';
+                    } else if (keys.right) {
+                        this.vx = this.speed;
+                        this.facing = 'right';
+                    } else {
+                        this.vx = 0;
+                    }
+
+                    if (keys.jump && this.isGrounded) {
+                        this.vy = this.jumpStrength;
+                        this.isGrounded = false;
+                        sfx.playJump();
+                    }
+
+                    this.vy += this.gravity;
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    this.checkGirderCollisions();
+                }
+
+                if (this.x < 10) this.x = 10;
+                if (this.x + this.width > CANVAS_WIDTH - 10) this.x = CANVAS_WIDTH - 10 - this.width;
+
+                if (this.vx !== 0 || this.vy !== 0) {
+                    this.animFrame = (this.animFrame + 0.2) % 2;
+                }
+            }
+
+            checkGirderCollisions() {
+                this.isGrounded = false;
+                const feetY = this.y + this.height;
+                const px = this.x + this.width / 2;
+
+                girders.forEach(g => {
+                    const minX = Math.min(g.x1, g.x2);
+                    const maxX = Math.max(g.x1, g.x2);
+
+                    if (px >= minX && px <= maxX) {
+                        const t = (px - g.x1) / (g.x2 - g.x1);
+                        const girderY = g.y1 + t * (g.y2 - g.y1);
+
+                        if (feetY >= girderY - 6 && feetY <= girderY + 10 && this.vy >= 0) {
+                            this.y = girderY - this.height;
+                            this.vy = 0;
+                            this.isGrounded = true;
+                        }
+                    }
+                });
+            }
+
+            draw() {
+                // Invulnerability flicker
+                if (this.invulnerableTimer > 0 && Math.floor(this.invulnerableTimer / 5) % 2 === 0) {
+                    return;
+                }
+
+                ctx.save();
+                ctx.translate(this.x + this.width / 2, this.y + this.height / 2);
+
+                if (gameState === 'DYING') {
+                    ctx.rotate(this.deathRotation);
+                }
+
+                ctx.translate(-this.width / 2, -this.height / 2);
+
+                if (this.hasHammer && gameState !== 'DYING') {
+                    ctx.fillStyle = '#FFD700';
+                    const hammerUp = Math.floor(Date.now() / 100) % 2 === 0;
+                    ctx.fillRect(hammerUp ? -6 : 14, hammerUp ? -12 : 2, 8, 12);
+                    ctx.fillStyle = '#8B4513';
+                    ctx.fillRect(hammerUp ? -2 : 10, hammerUp ? -2 : 8, 4, 10);
+                }
+
+                if (gameState === 'DYING') {
+                    // Flash red on death
+                    ctx.fillStyle = '#FF0000';
+                    ctx.fillRect(2, 0, 12, 18);
+                } else {
+                    // Overalls
+                    ctx.fillStyle = '#0000FF';
+                    ctx.fillRect(3, 8, 10, 10);
+
+                    // Shirt & Cap
+                    ctx.fillStyle = '#FF0000';
+                    ctx.fillRect(2, 0, 12, 4);
+                    ctx.fillRect(2, 6, 12, 6);
+
+                    // Face
+                    ctx.fillStyle = '#FFCC99';
+                    if (this.facing === 'right') ctx.fillRect(8, 2, 6, 4);
+                    else ctx.fillRect(2, 2, 6, 4);
+
+                    // Legs
+                    ctx.fillStyle = '#8B4513';
+                    const legOffset = Math.floor(this.animFrame) * 2;
+                    ctx.fillRect(3 + legOffset, 16, 4, 4);
+                    ctx.fillRect(9 - legOffset, 16, 4, 4);
+                }
+
+                ctx.restore();
+            }
+        }
+
+        class Barrel {
+            constructor(x, y, speedMult = 1.0) {
+                this.x = x;
+                this.y = y;
+                this.radius = 8;
+                this.vx = 1.6 * speedMult;
+                this.vy = 0;
+                this.speedMult = speedMult;
+                this.rotation = 0;
+                this.isFalling = false;
+                this.isFireball = false;
+            }
+
+            update() {
+                if (this.isFireball) {
+                    this.x += this.vx;
+                    this.y += this.vy;
+                    if (this.x < 20 || this.x > CANVAS_WIDTH - 20) this.vx *= -1;
+                    return;
+                }
+
+                let currentGirder = null;
+
+                girders.forEach(g => {
+                    const minX = Math.min(g.x1, g.x2);
+                    const maxX = Math.max(g.x1, g.x2);
+
+                    if (this.x >= minX && this.x <= maxX) {
+                        const t = (this.x - g.x1) / (g.x2 - g.x1);
+                        const girderY = g.y1 + t * (g.y2 - g.y1);
+
+                        if (Math.abs((this.y + this.radius) - girderY) < 8 && this.vy >= 0) {
+                            currentGirder = g;
+                            this.y = girderY - this.radius;
+                            this.vy = 0;
+                            this.isFalling = false;
+                        }
+                    }
+                });
+
+                if (currentGirder) {
+                    const baseSpeed = 1.8 * this.speedMult;
+                    if (currentGirder.y1 < currentGirder.y2) {
+                        this.vx = baseSpeed;
+                    } else if (currentGirder.y1 > currentGirder.y2) {
+                        this.vx = -baseSpeed;
+                    } else {
+                        this.vx = this.vx > 0 ? baseSpeed : -baseSpeed;
+                    }
+
+                    ladders.forEach(l => {
+                        if (Math.abs(this.x - l.x) < 4 && Math.abs((this.y + this.radius) - l.y1) < 4) {
+                            if (Math.random() < 0.20) {
+                                this.isFalling = true;
+                                this.vx = 0;
+                                this.vy = 2.2;
+                            }
+                        }
+                    });
+
+                } else {
+                    this.isFalling = true;
+                    this.vx = 0;
+                    this.vy += 0.35;
+                }
+
+                this.x += this.vx;
+                this.y += this.vy;
+                this.rotation += (this.vx !== 0 ? this.vx : 1) * 0.12;
+
+                if (this.x <= oilBarrel.x + oilBarrel.width + 10 && this.y >= oilBarrel.y - 10) {
+                    this.isFireball = true;
+                    this.vx = 1.2 * this.speedMult;
+                    this.vy = -0.4;
+                    sfx.playStomp();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+
+                if (this.isFireball) {
+                    ctx.fillStyle = Math.floor(Date.now() / 100) % 2 === 0 ? '#FF3300' : '#FFCC00';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.radius + 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.fillRect(-3, -2, 2, 2);
+                    ctx.fillRect(1, -2, 2, 2);
+                } else {
+                    ctx.rotate(this.rotation);
+
+                    ctx.fillStyle = '#C85A17';
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#000';
+                    ctx.stroke();
+
+                    ctx.strokeStyle = '#FFD700';
+                    ctx.beginPath();
+                    ctx.moveTo(-this.radius + 2, -3);
+                    ctx.lineTo(this.radius - 2, -3);
+                    ctx.moveTo(-this.radius + 2, 3);
+                    ctx.lineTo(this.radius - 2, 3);
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        const player = new Player();
+        let barrels = [];
+
+        function spawnBarrel() {
+            // Speed slowly increases with higher level/score
+            const speedMult = Math.min(1.0 + (stageLevel - 1) * 0.15 + (score / 10000), 2.0);
+            barrels.push(new Barrel(165, 112, speedMult));
+            sfx.playStomp();
+        }
+
+        function drawStage() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+            ctx.strokeStyle = '#E60000';
+            ctx.lineWidth = 4;
+
+            girders.forEach(g => {
+                ctx.beginPath();
+                ctx.moveTo(g.x1, g.y1);
+                ctx.lineTo(g.x2, g.y2);
+                ctx.stroke();
+
+                const length = Math.hypot(g.x2 - g.x1, g.y2 - g.y1);
+                const steps = Math.floor(length / 10);
+                ctx.lineWidth = 1;
+                for (let i = 0; i <= steps; i++) {
+                    const t = i / steps;
+                    const x = g.x1 + t * (g.x2 - g.x1);
+                    const y = g.y1 + t * (g.y2 - g.y1);
+                    ctx.beginPath();
+                    ctx.moveTo(x, y);
+                    ctx.lineTo(x, y + 6);
+                    ctx.stroke();
+                }
+                ctx.lineWidth = 4;
+            });
+
+            ctx.strokeStyle = '#00D8D8';
+            ctx.lineWidth = 2;
+            ladders.forEach(l => {
+                ctx.beginPath();
+                ctx.moveTo(l.x - 6, l.y1);
+                ctx.lineTo(l.x - 6, l.y2);
+                ctx.moveTo(l.x + 6, l.y1);
+                ctx.lineTo(l.x + 6, l.y2);
+                ctx.stroke();
+
+                for (let ry = l.y1 + 4; ry < l.y2; ry += 8) {
+                    ctx.beginPath();
+                    ctx.moveTo(l.x - 6, ry);
+                    ctx.lineTo(l.x + 6, ry);
+                    ctx.stroke();
+                }
+            });
+
+            // Oil Drum
+            ctx.fillStyle = '#00D8D8';
+            ctx.fillRect(oilBarrel.x, oilBarrel.y, oilBarrel.width, oilBarrel.height);
+            ctx.fillStyle = '#008888';
+            ctx.fillRect(oilBarrel.x + 2, oilBarrel.y + 4, oilBarrel.width - 4, oilBarrel.height - 8);
+            ctx.fillStyle = '#FFF';
+            ctx.font = '7px "Press Start 2P"';
+            ctx.fillText('OIL', oilBarrel.x + 4, oilBarrel.y + 24);
+
+            if (Math.floor(Date.now() / 150) % 2 === 0) {
+                ctx.fillStyle = '#FF3300';
+                ctx.beginPath();
+                ctx.arc(oilBarrel.x + 14, oilBarrel.y - 4, 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Donkey Kong
+            ctx.fillStyle = '#8B0000';
+            ctx.fillRect(70, 85, 45, 35);
+            ctx.fillStyle = '#FFCC99';
+            ctx.fillRect(82, 90, 20, 15);
+            ctx.fillStyle = '#8B0000';
+            ctx.fillRect(55, 90, 15, 12);
+            ctx.fillRect(115, 90, 15, 12);
+
+            // Pauline
+            ctx.fillStyle = '#FF69B4';
+            ctx.fillRect(212, 50, 16, 22);
+            ctx.fillStyle = '#FFCC99';
+            ctx.fillRect(214, 44, 12, 8);
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(212, 40, 16, 6);
+
+            if (Math.floor(Date.now() / 400) % 2 === 0) {
+                ctx.fillStyle = '#FFF';
+                ctx.font = '8px "Press Start 2P"';
+                ctx.fillText('HELP!', 235, 45);
+            }
+
+            if (hammer.active) {
+                ctx.fillStyle = '#FFD700';
+                ctx.fillRect(hammer.x, hammer.y, hammer.width, hammer.height - 6);
+                ctx.fillStyle = '#8B4513';
+                ctx.fillRect(hammer.x + 6, hammer.y + 6, 4, 10);
+            }
+
+            // HUD
+            ctx.fillStyle = '#FFF';
+            ctx.font = '10px "Press Start 2P"';
+            ctx.fillText(`SCORE:${score.toString().padStart(6, '0')}`, 10, 24);
+            ctx.fillText(`HIGH:${highScore.toString().padStart(6, '0')}`, 165, 24);
+            ctx.fillText(`LIVES:${'♥'.repeat(Math.max(0, lives))}`, 320, 24);
+        }
+
+        function gameLoop() {
+            if (gameState === 'START') return;
+
+            ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+            drawStage();
+
+            if (gameState === 'PLAYING') {
+                spawnTimer++;
+                const spawnInterval = Math.max(90, 170 - (stageLevel * 10));
+                if (spawnTimer > spawnInterval) {
+                    spawnBarrel();
+                    spawnTimer = 0;
+                }
+
+                player.update();
+
+                // Hammer pickup
+                if (hammer.active &&
+                    player.x < hammer.x + hammer.width &&
+                    player.x + player.width > hammer.x &&
+                    player.y < hammer.y + hammer.height &&
+                    player.y + player.height > hammer.y) {
+                    hammer.active = false;
+                    player.hasHammer = true;
+                    player.hammerTimer = 400;
+                    score += 300;
+                }
+
+                // Barrels collision
+                for (let i = barrels.length - 1; i >= 0; i--) {
+                    const b = barrels[i];
+                    b.update();
+                    b.draw();
+
+                    const dist = Math.hypot((player.x + player.width / 2) - b.x, (player.y + player.height / 2) - b.y);
+                    if (dist < b.radius + 6) {
+                        if (player.hasHammer) {
+                            barrels.splice(i, 1);
+                            score += 500;
+                            sfx.playSmash();
+                        } else if (player.invulnerableTimer <= 0) {
+                            triggerDeathSequence();
+                            break;
+                        }
+                    }
+
+                    if (b.y > CANVAS_HEIGHT + 20) {
+                        barrels.splice(i, 1);
+                    }
+                }
+
+                // Stage clear check
+                if (player.y <= 75 && player.x >= 180 && player.x <= 260) {
+                    handleVictory();
+                }
+
+            } else if (gameState === 'DYING') {
+                player.update();
+                deathTimer++;
+
+                // Keep rendering remaining barrels
+                barrels.forEach(b => b.draw());
+
+                if (deathTimer > 90) { // ~1.5s death sequence
+                    lives--;
+                    if (lives <= 0) {
+                        gameState = 'GAMEOVER';
+                        if (score > highScore) highScore = score;
+                        showOverlay('GAME OVER', `FINAL SCORE: ${score}\n\nCLICK TO PLAY AGAIN`);
+                    } else {
+                        // Respawn Jumpman cleanly
+                        player.reset();
+                        barrels = barrels.filter(b => b.y < 350); // Clear barrels near bottom spawn
+                        gameState = 'PLAYING';
+                    }
+                }
+            } else if (gameState === 'WIN') {
+                barrels.forEach(b => b.draw());
+            }
+
+            player.draw();
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function triggerDeathSequence() {
+            gameState = 'DYING';
+            deathTimer = 0;
+            sfx.playDead();
+        }
+
+        function handleVictory() {
+            gameState = 'WIN';
+            sfx.playWin();
+            score += 1000;
+            if (score > highScore) highScore = score;
+            stageLevel++;
+            setTimeout(() => {
+                showOverlay('STAGE CLEAR!', `LEVEL ${stageLevel} START!\n+1000 BONUS PTS`);
+            }, 1000);
+        }
+
+        function showOverlay(title, msg) {
+            document.getElementById('overlayTitle').innerText = title;
+            document.getElementById('overlayMessage').innerText = msg;
+            document.getElementById('startBtn').innerText = (gameState === 'GAMEOVER' || gameState === 'WIN') ? 'PLAY AGAIN' : 'START GAME';
+            document.getElementById('overlay').classList.remove('hidden');
+        }
+
+        function startGame() {
+            sfx.init();
+            if (gameState === 'GAMEOVER' || gameState === 'START') {
+                score = 0;
+                lives = 3;
+                stageLevel = 1;
+            }
+            barrels = [];
+            spawnTimer = 0;
+            hammer.active = true;
+            player.reset();
+            gameState = 'PLAYING';
+            document.getElementById('overlay').classList.add('hidden');
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            gameLoop();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            sfx.init();
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+            if (e.code === 'ArrowUp' || e.code === 'KeyW') keys.up = true;
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') keys.down = true;
+            if (e.code === 'Space') {
+                keys.jump = true;
+                if (gameState === 'START' || gameState === 'GAMEOVER' || gameState === 'WIN') {
+                    startGame();
+                }
+                e.preventDefault();
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+            if (e.code === 'ArrowUp' || e.code === 'KeyW') keys.up = false;
+            if (e.code === 'ArrowDown' || e.code === 'KeyS') keys.down = false;
+            if (e.code === 'Space') keys.jump = false;
+        });
+
+        function bindTouchBtn(id, keyName) {
+            const btn = document.getElementById(id);
+            if (!btn) return;
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                sfx.init();
+                keys[keyName] = true;
+            });
+            btn.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                keys[keyName] = false;
+            });
+            btn.addEventListener('mousedown', () => {
+                sfx.init();
+                keys[keyName] = true;
+            });
+            btn.addEventListener('mouseup', () => keys[keyName] = false);
+        }
+
+        bindTouchBtn('btnLeft', 'left');
+        bindTouchBtn('btnRight', 'right');
+        bindTouchBtn('btnUp', 'up');
+        bindTouchBtn('btnDown', 'down');
+        bindTouchBtn('btnJump', 'jump');
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+
+        drawStage();
+    </script>
+</body>
+</html>

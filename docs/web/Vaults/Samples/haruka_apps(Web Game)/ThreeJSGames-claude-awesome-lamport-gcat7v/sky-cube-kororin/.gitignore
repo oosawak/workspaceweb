@@ -1,5 +1,0 @@
-# ElevenLabs API キー(ぜったいに コミットしない)
-tools/elevenlabs/.env
-tools/elevenlabs/export/
-__pycache__/
-.DS_Store
