@@ -24,8 +24,11 @@ Pages 版では、サンプル Vault のノートやリソースを閲覧でき�
 - 日報・議事録の作成と一覧表示
 - 画像、PDF、音声、動画、HTML、3D データなどのリソース管理
 - `.url` ファイルのリンクをアプリ内で表示（Ctrl/Cmd を押しながらクリックすると外部ブラウザーで開く）
+- Html、Javascriptで作成したWebゲームの配置と再生
 - 画像の表示と PhotoCraft による編集
-- PDFのPdfCraft編集、表計算ファイルのGridCraft編集、DXF/DWG図面のCADCraft編集とVaultへの保存
+- PDFのPdfCraft編集とVaultへの保存
+- 表計算ファイルのGridCraft編集とVaultへの保存
+- DXF図面のCADCraft編集とVaultへの保存
 - 音声・動画・3D データのプレビュー
 - 複数端末からサーバー上の同じ Vault を利用（Web サーバー版）
 - Web サーバー版での Markdown ノート共同編集と自動保存
@@ -54,8 +57,8 @@ npm run dev -- --host 0.0.0.0
 
 開発用 HTTPS の URL は次のとおりです。
 
-- ローカル: <https://localhost:1430/>
-- 同じネットワーク上の端末: `https://SERVER_IP:1430/`
+- ローカル: <https://localhost:3000/>
+- 同じネットワーク上の端末: `https://SERVER_IP:3000/`
 
 自己署名証明書の警告が表示された場合は、開発環境として証明書を許可してください。
 スクリーンショットなど一部のブラウザー機能は HTTPS または localhost でのみ利用できます。
@@ -66,12 +69,12 @@ npm run dev -- --host 0.0.0.0
 
 ```bash
 MINDZJ_BIND=0.0.0.0 \
-MINDZJ_PORT=3000 \
+MINDZJ_PORT=1430 \
 MINDZJ_VAULT=/absolute/path/to/Vaults/test \
 cargo run -p mindzj --bin mindzj-server
 ```
 
-Web UI は `1430`、Rust API サーバーは `3000` で起動します。`MINDZJ_VAULT` を省略
+Web UI は `3000`、Rust API サーバーは `1430` で起動します。`MINDZJ_VAULT` を省略
 すると、Welcome 画面からサーバー上の Vault フォルダーを選択できます。
 
 ## 本番ビルド
